@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SideNavigation } from "./ui/side-navigation";
 
 
 export const metadata: Metadata = {
@@ -15,7 +16,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+        <div className="grid grid-cols-[300px_1fr] gap-x-4 min-h-screen">
+        <SideNavigation />
+        <main>
+          {children}
+          </main>
+        </div>
       </body>
     </html>
   );
