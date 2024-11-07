@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { SideNavigation } from './ui/side-navigation';
+import { SideNavigation } from './client/side-navigation';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
