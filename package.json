@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.4.0",
+    "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.0.3",
     "lucide-react": "^0.454.0",
     "next": "15.0.1",
     "prettier": "^3.3.3",
