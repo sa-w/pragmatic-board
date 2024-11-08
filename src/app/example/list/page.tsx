@@ -1,3 +1,5 @@
+import { List } from './list';
+
 export default function Page() {
-  return <div>List goes here</div>;
+  return <List />;
 }
