@@ -1,6 +1,9 @@
 'use client';
 
-import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import {
+  draggable,
+  dropTargetForElements,
+} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
 import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
 import { type Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
@@ -10,6 +13,11 @@ import { createPortal } from 'react-dom';
 
 import { ReactElement } from 'react';
 import { Apple } from 'lucide-react';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
+import {
+  autoScrollForElements,
+  autoScrollWindowForElements,
+} from '@/pdnd-auto-scroll/entry-point/element';
 
 type TCard = {
   id: string;
@@ -63,30 +71,32 @@ function Card({ card }: { card: TCard }) {
   useEffect(() => {
     const element = ref.current;
     invariant(element);
-    return draggable({
-      element,
-      onGenerateDragPreview({ nativeSetDragImage, location }) {
-        setCustomNativeDragPreview({
-          nativeSetDragImage,
-          getOffset: preserveOffsetOnSource({ element, input: location.current.input }),
-          render({ container }) {
-            const rect = element.getBoundingClientRect();
-            const node = element.cloneNode(true);
-            invariant(node instanceof HTMLElement);
-            node.classList.add('bg-red-400');
-            node.style.width = `${rect.width}px`;
-            node.style.height = `${rect.height}px`;
-            container.appendChild(node);
-          },
-        });
-      },
-      onDragStart() {
-        setState({ type: 'dragging' });
-      },
-      onDrop() {
-        setState(idle);
-      },
-    });
+    return combine(
+      draggable({
+        element,
+        onGenerateDragPreview({ nativeSetDragImage, location }) {
+          setCustomNativeDragPreview({
+            nativeSetDragImage,
+            getOffset: preserveOffsetOnSource({ element, input: location.current.input }),
+            render({ container }) {
+              const rect = element.getBoundingClientRect();
+              const node = element.cloneNode(true);
+              invariant(node instanceof HTMLElement);
+              node.classList.add('bg-red-400');
+              node.style.width = `${rect.width}px`;
+              node.style.height = `${rect.height}px`;
+              container.appendChild(node);
+            },
+          });
+        },
+        onDragStart() {
+          setState({ type: 'dragging' });
+        },
+        onDrop() {
+          setState(idle);
+        },
+      }),
+    );
   }, []);
   return (
     <>
@@ -106,11 +116,27 @@ function Card({ card }: { card: TCard }) {
 
 export function List() {
   const [cards] = useState<TCard[]>(() => getCards({ amount: 10 }));
+  const ref = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {});
+  useEffect(() => {
+    const element = ref.current;
+    invariant(element);
+    return combine(
+      dropTargetForElements({
+        element,
+      }),
+      autoScrollForElements({
+        element,
+      }),
+      autoScrollWindowForElements(),
+    );
+  }, []);
 
   return (
-    <div className="flex h-[50vh] w-80 flex-col gap-2 overflow-y-scroll rounded border p-2">
+    <div
+      className="flex h-[50vh] w-80 flex-col gap-2 overflow-y-scroll rounded border p-2"
+      ref={ref}
+    >
       {cards.map((card) => (
         <Card key={card.id} card={card} />
       ))}
