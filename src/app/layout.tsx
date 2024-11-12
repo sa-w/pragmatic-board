@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="grid min-h-screen grid-cols-[300px_1fr] gap-x-4">
+        <div className="grid min-h-screen grid-cols-[300px_1fr] gap-x-4 bg-background">
           <SideNavigation />
           <main>{children}</main>
         </div>

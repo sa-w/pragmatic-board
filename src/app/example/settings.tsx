@@ -2,54 +2,89 @@
 
 import { useDeferredValue, useEffect, useState } from 'react';
 
+type State =
+  | {
+      type: 'initializing';
+      frameId: number;
+    }
+  | {
+      type: 'running';
+      frameId: number;
+      lastFrameTime: number;
+      fpsValues: number[];
+    };
+
 function FPSMeter() {
   const [displayValue, setDisplayValue] = useState<number | null>(null);
   const deferredValue = useDeferredValue(displayValue);
 
   useEffect(() => {
-    let last: number | null = null;
-    let frameId: number | null = null;
-    const values: number[] = [];
-    function schedule() {
-      frameId = requestAnimationFrame((current) => {
-        frameId = null;
+    let state: State = {
+      type: 'initializing',
+      frameId: requestAnimationFrame((current) => {
+        state = {
+          type: 'running',
+          fpsValues: [],
+          lastFrameTime: current,
+          frameId: schedule(),
+        };
+      }),
+    };
 
-        // we initially don't have a `last` value
-        if (last == null) {
-          last = current;
-          schedule();
+    function schedule() {
+      return requestAnimationFrame((current) => {
+        if (state.type !== 'running') {
           return;
         }
 
-        const diff = current - last;
-        last = current;
-
+        const diff = current - state.lastFrameTime;
         const fps = 1000 / diff;
-        values.push(fps);
+        const fpsValues = [...state.fpsValues, fps];
 
-        if (values.length === 60) {
+        if (fpsValues.length >= 10) {
           console.count('update');
-          const sum = values.reduce((acc, current) => acc + current, 0);
-          const average = sum / values.length;
+          const sum = fpsValues.reduce((acc, current) => acc + current, 0);
+          const average = sum / fpsValues.length;
           const rounded = Math.round(average);
-          values.length = 0;
+          fpsValues.length = 0;
           setDisplayValue(rounded);
         }
 
-        schedule();
+        state = {
+          type: 'running',
+          fpsValues: fpsValues,
+          lastFrameTime: current,
+          frameId: schedule(),
+        };
       });
     }
 
-    schedule();
-
     return function cleanup() {
-      if (frameId != null) {
-        cancelAnimationFrame(frameId);
-      }
+      cancelAnimationFrame(state.frameId);
     };
   }, []);
 
-  return <div>FPS: {deferredValue}</div>;
+  return <div>FPS: {deferredValue ?? 'pending'}</div>;
+}
+
+function CPUBlocker() {
+  useEffect(() => {
+    function block() {
+      console.log('hurting CPU');
+      const start = Date.now();
+      while (Date.now() - start < 50) {
+        // block CPU
+      }
+    }
+
+    const timerId = setInterval(block);
+
+    return function cleanup() {
+      clearInterval(timerId);
+    };
+  }, []);
+
+  return null;
 }
 
 export function Settings() {
@@ -65,6 +100,7 @@ export function Settings() {
         </fieldset>
       </form>
       <FPSMeter />
+      {/* <CPUBlocker /> */}
     </div>
   );
 }

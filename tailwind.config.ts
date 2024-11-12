@@ -7,5 +7,13 @@ const config: Config = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   plugins: [],
+  theme: {
+    extend: {
+      colors: {
+        // Trello blue
+        background: 'rgb(0, 121, 191)',
+      },
+    },
+  },
 };
 export default config;

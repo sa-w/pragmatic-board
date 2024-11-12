@@ -4,27 +4,22 @@ import {
   draggable,
   dropTargetForElements,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
 import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
-import { type Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
 import { useEffect, useRef, useState } from 'react';
-import invariant from 'tiny-invariant';
 import { createPortal } from 'react-dom';
+import invariant from 'tiny-invariant';
+import { Ellipsis } from 'lucide-react';
 
-import { ReactElement } from 'react';
-import { Apple } from 'lucide-react';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import {
   autoScrollForElements,
   autoScrollWindowForElements,
 } from '@/pdnd-auto-scroll/entry-point/element';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 
 type TCard = {
   id: string;
-  icon: ReactElement;
   description: string;
-  backgroundColor: string;
-  avatarColor: string;
 };
 
 function getCards({ amount }: { amount: number }): TCard[] {
@@ -32,9 +27,6 @@ function getCards({ amount }: { amount: number }): TCard[] {
     const card: TCard = {
       id: `card:${index}`,
       description: `Card: ${index}`,
-      icon: <Apple />,
-      backgroundColor: 'bg-purple-100',
-      avatarColor: 'bg-orange-200',
     };
 
     return card;
@@ -61,7 +53,7 @@ type TCardState =
 const idle: TCardState = { type: 'idle' };
 
 const stateStyles: { [Key in TCardState['type']]?: string } = {
-  idle: 'bg-purple-100',
+  idle: 'bg-slate-800',
   dragging: 'bg-slate-100',
   preview: 'bg-blue-100',
   'is-over': 'bg-red-300',
@@ -114,11 +106,11 @@ function Card({ card }: { card: TCard }) {
   }, []);
   return (
     <>
-      <div ref={ref} className={`rounded border p-2 ${stateStyles[state.type]}`}>
-        <div className="flex flex-row items-center gap-2">
-          <div className={`${card.avatarColor} rounded-full p-2`}>{card.icon}</div>
-          <div>{card.description}</div>
-        </div>
+      <div
+        ref={ref}
+        className={`bg-slate-700 text-slate-300 rounded p-2 ${stateStyles[state.type]}`}
+      >
+        <div>{card.description}</div>
       </div>
       {state.type === 'preview' ? createPortal(<Card card={card} />, state.container) : null}
     </>
@@ -126,7 +118,7 @@ function Card({ card }: { card: TCard }) {
 }
 
 export function List() {
-  const [cards] = useState<TCard[]>(() => getCards({ amount: 10 }));
+  const [cards] = useState<TCard[]>(() => getCards({ amount: 80 }));
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -145,12 +137,20 @@ export function List() {
 
   return (
     <div
-      className="flex h-[50vh] w-80 flex-col gap-2 overflow-y-scroll rounded border p-2"
+      className="bg-slate-800 text-slate-300 flex h-[50vh] w-80 flex-col overflow-y-scroll rounded p-3"
       ref={ref}
     >
-      {cards.map((card) => (
-        <Card key={card.id} card={card} />
-      ))}
+      <div className="flex flex-row items-center justify-between px-2 pb-3">
+        <div className="font-bold leading-4">Column title</div>
+        <button type="button" className="hover:bg-slate-700 rounded p-2">
+          <Ellipsis size={16} />
+        </button>
+      </div>
+      <div className="flex flex-col gap-3">
+        {cards.map((card) => (
+          <Card key={card.id} card={card} />
+        ))}
+      </div>
     </div>
   );
 }
