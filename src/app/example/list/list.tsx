@@ -43,7 +43,7 @@ type TCardState =
     }
   | {
       type: 'is-over';
-      // closestEdge: Edge;
+      rect: DOMRect;
     }
   | {
       type: 'preview';
@@ -57,7 +57,7 @@ const stateStyles: { [Key in TCardState['type']]?: string } = {
   idle: 'bg-slate-700 hover:border-current cursor-grab',
   'is-dragging': 'bg-slate-700 opacity-40',
   preview: 'bg-slate-700 bg-blue-100',
-  'is-over': 'bg-slate-900',
+  'is-over': 'bg-slate-700',
 };
 
 const CardInner = forwardRef<
@@ -78,10 +78,18 @@ const CardInner = forwardRef<
               height: state.rect.height,
               transform: !isSafari() ? 'rotate(4deg)' : undefined,
             }
-          : undefined
+          : state.type === 'is-over'
+            ? {
+                transform: `translateY(calc(-${state.rect.height}px - 0.75rem)`,
+                pointerEvents: 'none',
+                height: state.rect.height,
+                width: state.rect.width,
+              }
+            : undefined
       }
     >
       <div>{card.description}</div>
+      {/* TODO: shadow for item being dragged */}
     </div>
   );
 });
@@ -90,12 +98,14 @@ const cardKey = Symbol('card');
 type TCardData = {
   [cardKey]: true;
   card: TCard;
+  rect: DOMRect;
 };
 
-function getCardData(card: TCard): TCardData {
+function getCardData({ card, rect }: { card: TCard; rect: DOMRect }): TCardData {
   return {
     [cardKey]: true,
     card,
+    rect,
   };
 }
 
@@ -112,7 +122,8 @@ function Card({ card }: { card: TCard }) {
     return combine(
       draggable({
         element,
-        getInitialData: () => getCardData(card),
+        getInitialData: ({ element }) =>
+          getCardData({ card, rect: element.getBoundingClientRect() }),
         onGenerateDragPreview({ nativeSetDragImage, location }) {
           setCustomNativeDragPreview({
             nativeSetDragImage,
@@ -151,7 +162,7 @@ function Card({ card }: { card: TCard }) {
           if (source.data.card.id === card.id) {
             return;
           }
-          setState({ type: 'is-over' });
+          setState({ type: 'is-over', rect: source.data.rect });
         },
         onDragLeave({ source }) {
           if (!isCardData(source.data)) {
@@ -178,7 +189,7 @@ function Card({ card }: { card: TCard }) {
   );
 }
 
-export function List() {
+export function Column() {
   const [cards] = useState<TCard[]>(() => getCards({ amount: 80 }));
   const scrollableRef = useRef<HTMLDivElement | null>(null);
 

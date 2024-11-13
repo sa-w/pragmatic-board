@@ -1,5 +1,5 @@
-import { List } from './list';
+import { Column } from './list';
 
 export default function Page() {
-  return <List />;
+  return <Column />;
 }
