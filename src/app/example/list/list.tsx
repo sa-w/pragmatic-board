@@ -6,7 +6,7 @@ import {
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
 import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
-import { forwardRef, useEffect, useRef, useState } from 'react';
+import { CSSProperties, forwardRef, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import invariant from 'tiny-invariant';
 import { Ellipsis } from 'lucide-react';
@@ -42,8 +42,14 @@ type TCardState =
       type: 'is-dragging';
     }
   | {
+      type: 'is-dragging-hidden';
+    }
+  | {
       type: 'is-over';
-      rect: DOMRect;
+      dragging: {
+        rect: DOMRect;
+        index: number;
+      };
     }
   | {
       type: 'preview';
@@ -56,41 +62,63 @@ const idle: TCardState = { type: 'idle' };
 const stateStyles: { [Key in TCardState['type']]?: string } = {
   idle: 'bg-slate-700 hover:border-current cursor-grab',
   'is-dragging': 'bg-slate-700 opacity-40',
+  // 'is-dragging-hidden': 'hidden',
   preview: 'bg-slate-700 bg-blue-100',
   'is-over': 'bg-slate-700',
 };
+
+function getStyles({
+  state,
+  index,
+}: {
+  state: TCardState;
+  index: number;
+}): CSSProperties | undefined {
+  if (state.type === 'preview') {
+    return {
+      width: state.rect.width,
+      height: state.rect.height,
+      transform: !isSafari() ? 'rotate(4deg)' : undefined,
+    };
+  }
+  if (state.type === 'is-over') {
+    const isAfter: boolean = index < state.dragging.index;
+
+    return {
+      transform: isAfter
+        ? `translateY(calc(-${state.dragging.rect.height}px - 0.75rem)`
+        : `translateY(calc(${state.dragging.rect.height}px + 0.75rem)`,
+      pointerEvents: 'none',
+      height: state.dragging.rect.height,
+      width: state.dragging.rect.width,
+    };
+  }
+}
 
 const CardInner = forwardRef<
   HTMLDivElement,
   {
     card: TCard;
     state: TCardState;
+    index: number;
   }
->(function CardInner({ card, state }, ref) {
+>(function CardInner({ card, state, index }, ref) {
   return (
-    <div
-      ref={ref}
-      className={`rounded border border-transparent p-2 text-slate-300 ${stateStyles[state.type]}`}
-      style={
-        state.type === 'preview'
-          ? {
-              width: state.rect.width,
-              height: state.rect.height,
-              transform: !isSafari() ? 'rotate(4deg)' : undefined,
-            }
-          : state.type === 'is-over'
-            ? {
-                transform: `translateY(calc(-${state.rect.height}px - 0.75rem)`,
-                pointerEvents: 'none',
-                height: state.rect.height,
-                width: state.rect.width,
-              }
-            : undefined
-      }
-    >
-      <div>{card.description}</div>
-      {/* TODO: shadow for item being dragged */}
-    </div>
+    <>
+      <div
+        ref={ref}
+        className={`rounded border border-transparent p-2 text-slate-300 ${stateStyles[state.type]}`}
+        style={getStyles({ state, index })}
+      >
+        <div>{card.description}</div>
+      </div>
+      {state.type === 'is-over' ? (
+        <div
+          className="absolute rounded border border-transparent bg-slate-900"
+          style={{ height: state.dragging.rect.height, width: state.dragging.rect.width }}
+        />
+      ) : null}
+    </>
   );
 });
 
@@ -99,13 +127,15 @@ type TCardData = {
   [cardKey]: true;
   card: TCard;
   rect: DOMRect;
+  index: number;
 };
 
-function getCardData({ card, rect }: { card: TCard; rect: DOMRect }): TCardData {
+function getCardData({ card, rect, index }: Omit<TCardData, typeof cardKey>): TCardData {
   return {
     [cardKey]: true,
     card,
     rect,
+    index,
   };
 }
 
@@ -113,9 +143,10 @@ function isCardData(value: Record<string | symbol, unknown>): value is TCardData
   return Boolean(value[cardKey]);
 }
 
-function Card({ card }: { card: TCard }) {
+function Card({ card, index }: { card: TCard; index: number }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [state, setState] = useState<TCardState>(idle);
+  console.log({ card: card.description, state: state.type });
   useEffect(() => {
     const element = ref.current;
     invariant(element);
@@ -123,7 +154,7 @@ function Card({ card }: { card: TCard }) {
       draggable({
         element,
         getInitialData: ({ element }) =>
-          getCardData({ card, rect: element.getBoundingClientRect() }),
+          getCardData({ card, rect: element.getBoundingClientRect(), index }),
         onGenerateDragPreview({ nativeSetDragImage, location }) {
           setCustomNativeDragPreview({
             nativeSetDragImage,
@@ -162,13 +193,15 @@ function Card({ card }: { card: TCard }) {
           if (source.data.card.id === card.id) {
             return;
           }
-          setState({ type: 'is-over', rect: source.data.rect });
+          setState({ type: 'is-over', dragging: { rect: source.data.rect, index } });
         },
         onDragLeave({ source }) {
           if (!isCardData(source.data)) {
             return;
           }
           if (source.data.card.id === card.id) {
+            // TODO: perf
+            setState({ type: 'is-dragging-hidden' });
             return;
           }
           setState(idle);
@@ -178,12 +211,12 @@ function Card({ card }: { card: TCard }) {
         },
       }),
     );
-  }, [card]);
+  }, [card, index]);
   return (
     <>
-      <CardInner ref={ref} state={state} card={card} />
+      <CardInner ref={ref} state={state} card={card} index={index} />
       {state.type === 'preview'
-        ? createPortal(<CardInner state={state} card={card} />, state.container)
+        ? createPortal(<CardInner state={state} card={card} index={index} />, state.container)
         : null}
     </>
   );
@@ -210,14 +243,14 @@ export function Column() {
   return (
     <div className="flex h-[50vh] w-80 flex-col rounded bg-slate-800 text-slate-300">
       <div className="flex flex-row items-center justify-between px-5 py-3">
-        <div className="font-bold leading-4">Column title</div>
+        <div className="font-bold leading-4">Column A</div>
         <button type="button" className="rounded p-2 hover:bg-slate-700">
           <Ellipsis size={16} />
         </button>
       </div>
       <div className="flex flex-col gap-3 overflow-y-scroll p-3 pt-0" ref={scrollableRef}>
-        {cards.map((card) => (
-          <Card key={card.id} card={card} />
+        {cards.map((card, index) => (
+          <Card key={card.id} card={card} index={index} />
         ))}
       </div>
     </div>

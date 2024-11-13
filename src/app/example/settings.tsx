@@ -42,7 +42,6 @@ function FPSMeter() {
         const fpsValues = [...state.fpsValues, fps];
 
         if (fpsValues.length >= 10) {
-          console.count('update');
           const sum = fpsValues.reduce((acc, current) => acc + current, 0);
           const average = sum / fpsValues.length;
           const rounded = Math.round(average);
