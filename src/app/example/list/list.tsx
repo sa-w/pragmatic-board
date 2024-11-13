@@ -9,7 +9,7 @@ import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/el
 import { CSSProperties, forwardRef, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import invariant from 'tiny-invariant';
-import { Ellipsis } from 'lucide-react';
+import { Ellipsis, Plus } from 'lucide-react';
 
 import {
   autoScrollForElements,
@@ -241,7 +241,7 @@ export function Column() {
   }, []);
 
   return (
-    <div className="flex h-[50vh] w-80 flex-col rounded bg-slate-800 text-slate-300">
+    <div className="flex h-[50vh] w-80 select-none flex-col rounded bg-slate-800 text-slate-300">
       <div className="flex flex-row items-center justify-between px-5 py-3">
         <div className="font-bold leading-4">Column A</div>
         <button type="button" className="rounded p-2 hover:bg-slate-700">
@@ -252,6 +252,12 @@ export function Column() {
         {cards.map((card, index) => (
           <Card key={card.id} card={card} index={index} />
         ))}
+      </div>
+      <div className="flex flex-row items-center gap-2 px-3 py-2">
+        <button type="button" className="rounded p-2 hover:bg-slate-700">
+          <Plus size={16} />
+        </button>
+        <div className="leading-4">Add a card</div>
       </div>
     </div>
   );
