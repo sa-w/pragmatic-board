@@ -9,7 +9,7 @@ import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/el
 import { CSSProperties, forwardRef, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import invariant from 'tiny-invariant';
-import { Ellipsis, Plus } from 'lucide-react';
+import { Copy, Ellipsis, Plus } from 'lucide-react';
 
 import {
   autoScrollForElements,
@@ -112,12 +112,12 @@ const CardInner = forwardRef<
       >
         <div>{card.description}</div>
       </div>
-      {state.type === 'is-over' ? (
+      {/* {state.type === 'is-over' ? (
         <div
           className="absolute rounded border border-transparent bg-slate-900"
           style={{ height: state.dragging.rect.height, width: state.dragging.rect.width }}
         />
-      ) : null}
+      ) : null} */}
     </>
   );
 });
@@ -241,10 +241,10 @@ export function Column() {
   }, []);
 
   return (
-    <div className="flex h-[50vh] w-80 select-none flex-col rounded bg-slate-800 text-slate-300">
+    <div className="flex max-h-[100vh] w-80 select-none flex-col rounded-lg bg-slate-800 text-slate-300">
       <div className="flex flex-row items-center justify-between px-5 py-3">
         <div className="font-bold leading-4">Column A</div>
-        <button type="button" className="rounded p-2 hover:bg-slate-700">
+        <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
           <Ellipsis size={16} />
         </button>
       </div>
@@ -253,11 +253,17 @@ export function Column() {
           <Card key={card.id} card={card} index={index} />
         ))}
       </div>
-      <div className="flex flex-row items-center gap-2 px-3 py-2">
-        <button type="button" className="rounded p-2 hover:bg-slate-700">
+      <div className="flex flex-row gap-2 p-3">
+        <button
+          type="button"
+          className="flex flex-grow flex-row gap-1 rounded p-2 hover:bg-slate-700 active:bg-slate-600"
+        >
           <Plus size={16} />
+          <div className="leading-4">Add a card</div>
         </button>
-        <div className="leading-4">Add a card</div>
+        <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
+          <Copy size={16} />
+        </button>
       </div>
     </div>
   );
