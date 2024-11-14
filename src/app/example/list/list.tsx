@@ -46,15 +46,12 @@ type TCardState =
     }
   | {
       type: 'is-over';
-      dragging: {
-        rect: DOMRect;
-        index: number;
-      };
+      dragging: TCardData;
     }
   | {
       type: 'preview';
       container: HTMLElement;
-      rect: DOMRect;
+      dragging: TCardData;
     };
 
 const idle: TCardState = { type: 'idle' };
@@ -62,7 +59,7 @@ const idle: TCardState = { type: 'idle' };
 const stateStyles: { [Key in TCardState['type']]?: string } = {
   idle: 'bg-slate-700 hover:border-current cursor-grab',
   'is-dragging': 'bg-slate-700 opacity-40',
-  // 'is-dragging-hidden': 'hidden',
+  'is-dragging-hidden': 'invisible',
   preview: 'bg-slate-700 bg-blue-100',
   'is-over': 'bg-slate-700',
 };
@@ -76,13 +73,14 @@ function getStyles({
 }): CSSProperties | undefined {
   if (state.type === 'preview') {
     return {
-      width: state.rect.width,
-      height: state.rect.height,
+      width: state.dragging.rect.width,
+      height: state.dragging.rect.height,
       transform: !isSafari() ? 'rotate(4deg)' : undefined,
     };
   }
   if (state.type === 'is-over') {
-    const isAfter: boolean = index < state.dragging.index;
+    const isAfter: boolean = index > state.dragging.index;
+    console.log({ isAfter, index, draggingIndex: state.dragging.index });
 
     return {
       transform: isAfter
@@ -104,7 +102,7 @@ const CardInner = forwardRef<
   }
 >(function CardInner({ card, state, index }, ref) {
   return (
-    <>
+    <div className="relative">
       <div
         ref={ref}
         className={`rounded border border-transparent p-2 text-slate-300 ${stateStyles[state.type]}`}
@@ -112,13 +110,17 @@ const CardInner = forwardRef<
       >
         <div>{card.description}</div>
       </div>
-      {/* {state.type === 'is-over' ? (
+      {state.type === 'is-over' ? (
         <div
-          className="absolute rounded border border-transparent bg-slate-900"
-          style={{ height: state.dragging.rect.height, width: state.dragging.rect.width }}
+          className="absolute left-0 top-0 rounded bg-red-800"
+          style={{
+            width: state.dragging.rect.width,
+            height: state.dragging.rect.height,
+            flexShrink: 0,
+          }}
         />
-      ) : null} */}
-    </>
+      ) : null}
+    </div>
   );
 });
 
@@ -155,7 +157,9 @@ function Card({ card, index }: { card: TCard; index: number }) {
         element,
         getInitialData: ({ element }) =>
           getCardData({ card, rect: element.getBoundingClientRect(), index }),
-        onGenerateDragPreview({ nativeSetDragImage, location }) {
+        onGenerateDragPreview({ nativeSetDragImage, location, source }) {
+          const data = source.data;
+          invariant(isCardData(data));
           setCustomNativeDragPreview({
             nativeSetDragImage,
             getOffset: preserveOffsetOnSource({ element, input: location.current.input }),
@@ -163,15 +167,8 @@ function Card({ card, index }: { card: TCard; index: number }) {
               setState({
                 type: 'preview',
                 container,
-                rect: element.getBoundingClientRect(),
+                dragging: data,
               });
-              // const rect = element.getBoundingClientRect();
-              // const node = element.cloneNode(true);
-              // invariant(node instanceof HTMLElement);
-              // node.classList.add('bg-red-400');
-              // node.style.width = `${rect.width}px`;
-              // node.style.height = `${rect.height}px`;
-              // container.appendChild(node);
             },
           });
         },
@@ -193,7 +190,7 @@ function Card({ card, index }: { card: TCard; index: number }) {
           if (source.data.card.id === card.id) {
             return;
           }
-          setState({ type: 'is-over', dragging: { rect: source.data.rect, index } });
+          setState({ type: 'is-over', dragging: source.data });
         },
         onDragLeave({ source }) {
           if (!isCardData(source.data)) {
@@ -242,8 +239,8 @@ export function Column() {
 
   return (
     <div className="flex max-h-[100vh] w-80 select-none flex-col rounded-lg bg-slate-800 text-slate-300">
-      <div className="flex flex-row items-center justify-between px-5 py-3">
-        <div className="font-bold leading-4">Column A</div>
+      <div className="flex flex-row items-center justify-between p-3">
+        <div className="pl-2 font-bold leading-4">Column A</div>
         <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
           <Ellipsis size={16} />
         </button>
