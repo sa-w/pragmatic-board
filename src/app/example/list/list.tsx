@@ -10,6 +10,7 @@ import { CSSProperties, forwardRef, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import invariant from 'tiny-invariant';
 import { Copy, Ellipsis, Plus } from 'lucide-react';
+import { reorder } from '@atlaskit/pragmatic-drag-and-drop/reorder';
 
 import {
   autoScrollForElements,
@@ -42,16 +43,12 @@ type TCardState =
       type: 'is-dragging';
     }
   | {
-      type: 'is-dragging-hidden';
-    }
-  | {
       type: 'is-over';
-      dragging: TCardData;
     }
   | {
       type: 'preview';
       container: HTMLElement;
-      dragging: TCardData;
+      dragging: DOMRect;
     };
 
 const idle: TCardState = { type: 'idle' };
@@ -59,67 +56,32 @@ const idle: TCardState = { type: 'idle' };
 const stateStyles: { [Key in TCardState['type']]?: string } = {
   idle: 'bg-slate-700 hover:border-current cursor-grab',
   'is-dragging': 'bg-slate-700 opacity-40',
-  'is-dragging-hidden': 'invisible',
   preview: 'bg-slate-700 bg-blue-100',
-  'is-over': 'bg-slate-700',
+  'is-over': 'bg-slate-950 opacity-40',
 };
-
-function getStyles({
-  state,
-  index,
-}: {
-  state: TCardState;
-  index: number;
-}): CSSProperties | undefined {
-  if (state.type === 'preview') {
-    return {
-      width: state.dragging.rect.width,
-      height: state.dragging.rect.height,
-      transform: !isSafari() ? 'rotate(4deg)' : undefined,
-    };
-  }
-  if (state.type === 'is-over') {
-    const isAfter: boolean = index > state.dragging.index;
-    console.log({ isAfter, index, draggingIndex: state.dragging.index });
-
-    return {
-      transform: isAfter
-        ? `translateY(calc(-${state.dragging.rect.height}px - 0.75rem)`
-        : `translateY(calc(${state.dragging.rect.height}px + 0.75rem)`,
-      pointerEvents: 'none',
-      height: state.dragging.rect.height,
-      width: state.dragging.rect.width,
-    };
-  }
-}
 
 const CardInner = forwardRef<
   HTMLDivElement,
   {
     card: TCard;
     state: TCardState;
-    index: number;
   }
->(function CardInner({ card, state, index }, ref) {
+>(function CardInner({ card, state }, ref) {
   return (
-    <div className="relative">
-      <div
-        ref={ref}
-        className={`rounded border border-transparent p-2 text-slate-300 ${stateStyles[state.type]}`}
-        style={getStyles({ state, index })}
-      >
-        <div>{card.description}</div>
-      </div>
-      {state.type === 'is-over' ? (
-        <div
-          className="absolute left-0 top-0 rounded bg-red-800"
-          style={{
-            width: state.dragging.rect.width,
-            height: state.dragging.rect.height,
-            flexShrink: 0,
-          }}
-        />
-      ) : null}
+    <div
+      ref={ref}
+      className={`flex-shrink-0 rounded border border-transparent p-2 text-slate-300 ${stateStyles[state.type]}`}
+      style={
+        state.type === 'preview'
+          ? {
+              width: state.dragging.width,
+              height: state.dragging.height,
+              transform: !isSafari() ? 'rotate(4deg)' : undefined,
+            }
+          : undefined
+      }
+    >
+      <div className={`${state.type === 'is-over' ? 'invisible' : ''}`}>{card.description}</div>
     </div>
   );
 });
@@ -128,16 +90,12 @@ const cardKey = Symbol('card');
 type TCardData = {
   [cardKey]: true;
   card: TCard;
-  rect: DOMRect;
-  index: number;
 };
 
-function getCardData({ card, rect, index }: Omit<TCardData, typeof cardKey>): TCardData {
+function getCardData({ card }: Omit<TCardData, typeof cardKey>): TCardData {
   return {
     [cardKey]: true,
     card,
-    rect,
-    index,
   };
 }
 
@@ -148,15 +106,13 @@ function isCardData(value: Record<string | symbol, unknown>): value is TCardData
 function Card({ card, index }: { card: TCard; index: number }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [state, setState] = useState<TCardState>(idle);
-  console.log({ card: card.description, state: state.type });
   useEffect(() => {
     const element = ref.current;
     invariant(element);
     return combine(
       draggable({
         element,
-        getInitialData: ({ element }) =>
-          getCardData({ card, rect: element.getBoundingClientRect(), index }),
+        getInitialData: () => getCardData({ card }),
         onGenerateDragPreview({ nativeSetDragImage, location, source }) {
           const data = source.data;
           invariant(isCardData(data));
@@ -167,7 +123,7 @@ function Card({ card, index }: { card: TCard; index: number }) {
               setState({
                 type: 'preview',
                 container,
-                dragging: data,
+                dragging: element.getBoundingClientRect(),
               });
             },
           });
@@ -183,6 +139,7 @@ function Card({ card, index }: { card: TCard; index: number }) {
         element,
         getIsSticky: () => true,
         canDrop: ({ source }) => isCardData(source.data),
+        getData: () => getCardData({ card }),
         onDragEnter({ source }) {
           if (!isCardData(source.data)) {
             return;
@@ -190,15 +147,14 @@ function Card({ card, index }: { card: TCard; index: number }) {
           if (source.data.card.id === card.id) {
             return;
           }
-          setState({ type: 'is-over', dragging: source.data });
+          setState({ type: 'is-over' });
         },
         onDragLeave({ source }) {
           if (!isCardData(source.data)) {
             return;
           }
+          console.log('leaving :(', card.id);
           if (source.data.card.id === card.id) {
-            // TODO: perf
-            setState({ type: 'is-dragging-hidden' });
             return;
           }
           setState(idle);
@@ -211,16 +167,16 @@ function Card({ card, index }: { card: TCard; index: number }) {
   }, [card, index]);
   return (
     <>
-      <CardInner ref={ref} state={state} card={card} index={index} />
+      <CardInner ref={ref} state={state} card={card} />
       {state.type === 'preview'
-        ? createPortal(<CardInner state={state} card={card} index={index} />, state.container)
+        ? createPortal(<CardInner state={state} card={card} />, state.container)
         : null}
     </>
   );
 }
 
 export function Column() {
-  const [cards] = useState<TCard[]>(() => getCards({ amount: 80 }));
+  const [cards, setCards] = useState<TCard[]>(() => getCards({ amount: 80 }));
   const scrollableRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -229,6 +185,47 @@ export function Column() {
     return combine(
       dropTargetForElements({
         element,
+        canDrop: ({ source }) => isCardData(source.data),
+        getIsSticky: () => true,
+        onDrop({ source, location }) {
+          console.log('column on drop');
+          const dragging = source.data;
+          if (!isCardData(dragging)) {
+            return;
+          }
+
+          const innerMostDropTarget = location.current.dropTargets[0];
+
+          if (!innerMostDropTarget) {
+            return;
+          }
+
+          const dropTargetData = innerMostDropTarget.data;
+
+          if (!isCardData(dropTargetData)) {
+            return;
+          }
+
+          setCards((current) => {
+            const startIndex = current.findIndex((card) => card.id === dragging.card.id);
+            const finishIndex = current.findIndex((card) => card.id === dropTargetData.card.id);
+
+            if (startIndex === -1 || finishIndex === -1) {
+              return current;
+            }
+
+            // shortcut: no change required
+            if (startIndex === finishIndex) {
+              return current;
+            }
+
+            return reorder({
+              list: current,
+              startIndex,
+              finishIndex,
+            });
+          });
+        },
       }),
       autoScrollForElements({
         element,
