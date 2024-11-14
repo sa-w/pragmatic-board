@@ -18,6 +18,7 @@ import {
 } from '@/pdnd-auto-scroll/entry-point/element';
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import { isSafari } from '@/shared/is-safari';
+import { unsafeOverflowAutoScrollForElements } from '@/pdnd-auto-scroll/entry-point/unsafe-overflow/element';
 
 type TCard = {
   id: string;
@@ -103,6 +104,14 @@ function isCardData(value: Record<string | symbol, unknown>): value is TCardData
   return Boolean(value[cardKey]);
 }
 
+function isDraggingACard({
+  source,
+}: {
+  source: { data: Record<string | symbol, unknown> };
+}): boolean {
+  return isCardData(source.data);
+}
+
 function Card({ card, index }: { card: TCard; index: number }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [state, setState] = useState<TCardState>(idle);
@@ -138,7 +147,7 @@ function Card({ card, index }: { card: TCard; index: number }) {
       dropTargetForElements({
         element,
         getIsSticky: () => true,
-        canDrop: ({ source }) => isCardData(source.data),
+        canDrop: isDraggingACard,
         getData: () => getCardData({ card }),
         onDragEnter({ source }) {
           if (!isCardData(source.data)) {
@@ -185,7 +194,7 @@ export function Column() {
     return combine(
       dropTargetForElements({
         element,
-        canDrop: ({ source }) => isCardData(source.data),
+        canDrop: isDraggingACard,
         getIsSticky: () => true,
         onDrop({ source, location }) {
           console.log('column on drop');
@@ -228,36 +237,62 @@ export function Column() {
         },
       }),
       autoScrollForElements({
+        canScroll: isDraggingACard,
         element,
       }),
-      autoScrollWindowForElements(),
+      unsafeOverflowAutoScrollForElements({
+        element,
+        canScroll: isDraggingACard,
+        getOverflow() {
+          return {
+            fromTopEdge: {
+              top: 1000,
+              right: 0,
+              left: 0,
+            },
+            fromBottomEdge: {
+              bottom: 1000,
+              right: 0,
+              left: 0,
+            },
+          };
+        },
+      }),
+      autoScrollWindowForElements({
+        canScroll: isDraggingACard,
+      }),
     );
   }, []);
 
   return (
-    <div className="flex max-h-[100vh] w-80 select-none flex-col rounded-lg bg-slate-800 text-slate-300">
-      <div className="flex flex-row items-center justify-between p-3">
-        <div className="pl-2 font-bold leading-4">Column A</div>
-        <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
-          <Ellipsis size={16} />
-        </button>
-      </div>
-      <div className="flex flex-col gap-3 overflow-y-scroll p-3 pt-0" ref={scrollableRef}>
-        {cards.map((card, index) => (
-          <Card key={card.id} card={card} index={index} />
-        ))}
-      </div>
-      <div className="flex flex-row gap-2 p-3">
-        <button
-          type="button"
-          className="flex flex-grow flex-row gap-1 rounded p-2 hover:bg-slate-700 active:bg-slate-600"
+    <div className="flex h-lvh flex-col p-4">
+      <div className="flex h-full w-80 select-none flex-col rounded-lg bg-slate-800 text-slate-300">
+        <div className="flex flex-row items-center justify-between p-3">
+          <div className="pl-2 font-bold leading-4">Column A</div>
+          <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
+            <Ellipsis size={16} />
+          </button>
+        </div>
+        <div
+          className="flex flex-col gap-3 overflow-y-scroll p-3 pt-0 [scrollbar-color:#475569_#334155] [scrollbar-width:thin]"
+          ref={scrollableRef}
         >
-          <Plus size={16} />
-          <div className="leading-4">Add a card</div>
-        </button>
-        <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
-          <Copy size={16} />
-        </button>
+          {cards.map((card, index) => (
+            <Card key={card.id} card={card} index={index} />
+          ))}
+        </div>
+        <div className="flex flex-row gap-2 p-3">
+          <button
+            type="button"
+            className="flex flex-grow flex-row gap-1 rounded p-2 hover:bg-slate-700 active:bg-slate-600"
+          >
+            <Plus size={16} />
+            <div className="leading-4">Add a card</div>
+          </button>
+          <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
+            <Copy size={16} />
+          </button>
+        </div>
       </div>
     </div>
   );
