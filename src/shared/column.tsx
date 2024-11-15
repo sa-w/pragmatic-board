@@ -19,7 +19,7 @@ import {
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import { isSafari } from '@/shared/is-safari';
 import { unsafeOverflowAutoScrollForElements } from '@/pdnd-auto-scroll/entry-point/unsafe-overflow/element';
-import { TCard, TColumn } from './types';
+import { getCardData, isCardData, isDraggingACard, TCard, TColumn } from './data';
 
 type TCardState =
   | {
@@ -71,31 +71,6 @@ const CardInner = forwardRef<
     </div>
   );
 });
-
-const cardKey = Symbol('card');
-type TCardData = {
-  [cardKey]: true;
-  card: TCard;
-};
-
-function getCardData({ card }: Omit<TCardData, typeof cardKey>): TCardData {
-  return {
-    [cardKey]: true,
-    card,
-  };
-}
-
-function isCardData(value: Record<string | symbol, unknown>): value is TCardData {
-  return Boolean(value[cardKey]);
-}
-
-function isDraggingACard({
-  source,
-}: {
-  source: { data: Record<string | symbol, unknown> };
-}): boolean {
-  return isCardData(source.data);
-}
 
 function Card({ card, index }: { card: TCard; index: number }) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -250,14 +225,11 @@ export function Column({ column }: { column: TColumn }) {
           };
         },
       }),
-      autoScrollWindowForElements({
-        canScroll: isDraggingACard,
-      }),
     );
   }, []);
 
   return (
-    <div className="flex h-full w-80 select-none flex-col bg-red-200">
+    <div className="flex w-80 flex-shrink-0 select-none flex-col bg-red-200">
       <div className="flex max-h-full flex-col rounded-lg bg-slate-800 text-slate-300">
         <div className="flex flex-row items-center justify-between p-3">
           <div className="pl-2 font-bold leading-4">{column.title}</div>

@@ -15,11 +15,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="grid h-screen grid-rows-[auto_1fr]">
+      <body className="flex h-screen flex-col">
         <TopBar />
-        <div className="relative">
+        {/* position: absolute needed for max-height:100% to be respected internally */}
+        <div className="relative flex-grow">
           <div className="absolute inset-0">
-            <main className="h-full bg-background p-4">{children}</main>
+            <main className="h-full bg-background">{children}</main>
           </div>
         </div>
       </body>
