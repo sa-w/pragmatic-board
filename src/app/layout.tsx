@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { SideNavigation } from './client/side-navigation';
+import { TopBar } from './client/top-bar';
 
 export const metadata: Metadata = {
   title: 'Auto scroll playground',
@@ -15,9 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="grid min-h-screen grid-cols-[300px_1fr] gap-x-4 bg-background">
-          <SideNavigation />
-          <main>{children}</main>
+        <div className="grid h-screen grid-rows-[auto_1fr]">
+          <TopBar />
+          <main className="bg-background p-4">{children}</main>
         </div>
       </body>
     </html>

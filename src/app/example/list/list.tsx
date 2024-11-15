@@ -183,8 +183,17 @@ function Card({ card, index }: { card: TCard; index: number }) {
   );
 }
 
-export function Column() {
-  const [cards, setCards] = useState<TCard[]>(() => getCards({ amount: 80 }));
+export function Example() {
+  return (
+    <div>
+      <Column />
+      <Column />
+    </div>
+  );
+}
+
+function Column() {
+  const [cards, setCards] = useState<TCard[]>(() => getCards({ amount: 5 }));
   const scrollableRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -214,6 +223,7 @@ export function Column() {
             return;
           }
 
+          console.log('on drop');
           setCards((current) => {
             const startIndex = current.findIndex((card) => card.id === dragging.card.id);
             const finishIndex = current.findIndex((card) => card.id === dropTargetData.card.id);
@@ -271,8 +281,8 @@ export function Column() {
   }, []);
 
   return (
-    <div className="flex h-lvh flex-col p-4">
-      <div className="flex h-full w-80 select-none flex-col rounded-lg bg-slate-800 text-slate-300">
+    <div className="flex h-full w-80 flex-col bg-red-200">
+      <div className="flex flex-shrink flex-grow select-none flex-col rounded-lg bg-slate-800 text-slate-300">
         <div className="flex flex-row items-center justify-between p-3">
           <div className="pl-2 font-bold leading-4">Column A</div>
           <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
@@ -280,7 +290,7 @@ export function Column() {
           </button>
         </div>
         <div
-          className="flex flex-col gap-3 overflow-y-scroll p-3 pt-0 [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
+          className="flex flex-grow basis-0 flex-col gap-3 overflow-y-auto p-3 pt-0 [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
           ref={scrollableRef}
         >
           {cards.map((card, index) => (
