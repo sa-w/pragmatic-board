@@ -17,7 +17,11 @@ export default function RootLayout({
     <html lang="en">
       <body className="grid h-screen grid-rows-[auto_1fr]">
         <TopBar />
-        <main className="bg-background p-4">{children}</main>
+        <div className="relative">
+          <div className="absolute inset-0">
+            <main className="h-full bg-background p-4">{children}</main>
+          </div>
+        </div>
       </body>
     </html>
   );

@@ -266,7 +266,7 @@ export function Column({ column }: { column: TColumn }) {
           </button>
         </div>
         <div
-          className="grid flex-shrink gap-3 overflow-y-auto p-3 pt-0 [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
+          className="flex flex-col gap-3 overflow-y-auto p-3 pt-0 [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
           ref={scrollableRef}
         >
           {column.cards.map((card, index) => (
