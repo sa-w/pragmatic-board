@@ -15,11 +15,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <div className="grid h-screen grid-rows-[auto_1fr]">
-          <TopBar />
-          <main className="bg-background p-4">{children}</main>
-        </div>
+      <body className="grid h-screen grid-rows-[auto_1fr]">
+        <TopBar />
+        <main className="bg-background p-4">{children}</main>
       </body>
     </html>
   );

@@ -41,7 +41,7 @@ export function Board() {
   const [data, setData] = useState(() => getInitialData());
 
   return (
-    <div className="flex h-full flex-row gap-3 overflow-x-auto bg-purple-200">
+    <div className="flex h-full flex-row gap-3 overflow-x-auto overflow-y-hidden bg-purple-200">
       {data.columns.map((column) => (
         <Column key={column.id} column={column} />
       ))}
