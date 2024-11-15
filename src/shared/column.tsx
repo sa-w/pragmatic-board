@@ -19,22 +19,7 @@ import {
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import { isSafari } from '@/shared/is-safari';
 import { unsafeOverflowAutoScrollForElements } from '@/pdnd-auto-scroll/entry-point/unsafe-overflow/element';
-
-type TCard = {
-  id: string;
-  description: string;
-};
-
-function getCards({ amount }: { amount: number }): TCard[] {
-  return Array.from({ length: amount }, (_, index) => {
-    const card: TCard = {
-      id: `card:${index}`,
-      description: `Card: ${index}`,
-    };
-
-    return card;
-  });
-}
+import { TCard, TColumn } from './types';
 
 type TCardState =
   | {
@@ -183,17 +168,8 @@ function Card({ card, index }: { card: TCard; index: number }) {
   );
 }
 
-export function Example() {
-  return (
-    <div>
-      <Column />
-      <Column />
-    </div>
-  );
-}
-
-function Column() {
-  const [cards, setCards] = useState<TCard[]>(() => getCards({ amount: 5 }));
+export function Column({ column }: { column: TColumn }) {
+  // const [cards, setCards] = useState<TCard[]>(() => getCards({ amount: 5 }));
   const scrollableRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -224,32 +200,32 @@ function Column() {
           }
 
           console.log('on drop');
-          setCards((current) => {
-            const startIndex = current.findIndex((card) => card.id === dragging.card.id);
-            const finishIndex = current.findIndex((card) => card.id === dropTargetData.card.id);
+          // setCards((current) => {
+          //   const startIndex = current.findIndex((card) => card.id === dragging.card.id);
+          //   const finishIndex = current.findIndex((card) => card.id === dropTargetData.card.id);
 
-            if (startIndex === -1 || finishIndex === -1) {
-              return current;
-            }
+          //   if (startIndex === -1 || finishIndex === -1) {
+          //     return current;
+          //   }
 
-            // shortcut: no change required
-            if (startIndex === finishIndex) {
-              return current;
-            }
+          //   // shortcut: no change required
+          //   if (startIndex === finishIndex) {
+          //     return current;
+          //   }
 
-            console.log('reorder', {
-              dragging: dragging.card.id,
-              dropTarget: dropTargetData.card.id,
-              startIndex,
-              finishIndex,
-            });
+          //   console.log('reorder', {
+          //     dragging: dragging.card.id,
+          //     dropTarget: dropTargetData.card.id,
+          //     startIndex,
+          //     finishIndex,
+          //   });
 
-            return reorder({
-              list: current,
-              startIndex,
-              finishIndex,
-            });
-          });
+          //   return reorder({
+          //     list: current,
+          //     startIndex,
+          //     finishIndex,
+          //   });
+          // });
         },
       }),
       autoScrollForElements({
@@ -281,21 +257,23 @@ function Column() {
   }, []);
 
   return (
-    <div className="flex h-full w-80 flex-col bg-red-200">
-      <div className="flex flex-shrink flex-grow select-none flex-col rounded-lg bg-slate-800 text-slate-300">
+    <div className="flex w-80 flex-col bg-red-200">
+      <div className="flex select-none flex-col rounded-lg bg-slate-800 text-slate-300">
         <div className="flex flex-row items-center justify-between p-3">
-          <div className="pl-2 font-bold leading-4">Column A</div>
+          <div className="pl-2 font-bold leading-4">{column.title}</div>
           <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
             <Ellipsis size={16} />
           </button>
         </div>
         <div
-          className="flex flex-grow basis-0 flex-col gap-3 overflow-y-auto p-3 pt-0 [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
+          className="overflow-y-auto [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
           ref={scrollableRef}
         >
-          {cards.map((card, index) => (
-            <Card key={card.id} card={card} index={index} />
-          ))}
+          <div className="flex flex-shrink flex-col gap-3 p-3 pt-0">
+            {column.cards.map((card, index) => (
+              <Card key={card.id} card={card} index={index} />
+            ))}
+          </div>
         </div>
         <div className="flex flex-row gap-2 p-3">
           <button
