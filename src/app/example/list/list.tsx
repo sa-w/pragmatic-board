@@ -162,7 +162,6 @@ function Card({ card, index }: { card: TCard; index: number }) {
           if (!isCardData(source.data)) {
             return;
           }
-          console.log('leaving :(', card.id);
           if (source.data.card.id === card.id) {
             return;
           }
@@ -228,6 +227,13 @@ export function Column() {
               return current;
             }
 
+            console.log('reorder', {
+              dragging: dragging.card.id,
+              dropTarget: dropTargetData.card.id,
+              startIndex,
+              finishIndex,
+            });
+
             return reorder({
               list: current,
               startIndex,
@@ -274,7 +280,7 @@ export function Column() {
           </button>
         </div>
         <div
-          className="flex flex-col gap-3 overflow-y-scroll p-3 pt-0 [scrollbar-color:#475569_#334155] [scrollbar-width:thin]"
+          className="flex flex-col gap-3 overflow-y-scroll p-3 pt-0 [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
           ref={scrollableRef}
         >
           {cards.map((card, index) => (
