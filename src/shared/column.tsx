@@ -258,7 +258,7 @@ export function Column({ column }: { column: TColumn }) {
 
   return (
     <div className="flex w-80 flex-col bg-red-200">
-      <div className="flex select-none flex-col rounded-lg bg-slate-800 text-slate-300">
+      <div className="flex h-full select-none flex-col rounded-lg bg-slate-800 text-slate-300">
         <div className="flex flex-row items-center justify-between p-3">
           <div className="pl-2 font-bold leading-4">{column.title}</div>
           <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
@@ -266,7 +266,7 @@ export function Column({ column }: { column: TColumn }) {
           </button>
         </div>
         <div
-          className="overflow-y-auto [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
+          className="flex-shrink flex-grow basis-0 overflow-y-auto [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
           ref={scrollableRef}
         >
           <div className="flex flex-shrink flex-col gap-3 p-3 pt-0">
