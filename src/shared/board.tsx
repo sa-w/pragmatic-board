@@ -58,10 +58,7 @@ export function Board() {
   }, []);
 
   return (
-    <div
-      className="flex h-full flex-row gap-3 overflow-x-auto bg-purple-200 p-4"
-      ref={scrollableRef}
-    >
+    <div className="flex h-full flex-row gap-3 overflow-x-auto p-3" ref={scrollableRef}>
       {data.columns.map((column) => (
         <Column key={column.id} column={column} />
       ))}

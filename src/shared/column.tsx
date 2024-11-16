@@ -1,158 +1,29 @@
 'use client';
 
-import {
-  draggable,
-  dropTargetForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
-import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
-import { CSSProperties, forwardRef, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import invariant from 'tiny-invariant';
+import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { Copy, Ellipsis, Plus } from 'lucide-react';
-import { reorder } from '@atlaskit/pragmatic-drag-and-drop/reorder';
+import { useEffect, useRef, useState } from 'react';
+import invariant from 'tiny-invariant';
 
-import {
-  autoScrollForElements,
-  autoScrollWindowForElements,
-} from '@/pdnd-auto-scroll/entry-point/element';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { isSafari } from '@/shared/is-safari';
+import { autoScrollForElements } from '@/pdnd-auto-scroll/entry-point/element';
 import { unsafeOverflowAutoScrollForElements } from '@/pdnd-auto-scroll/entry-point/unsafe-overflow/element';
-import { getCardData, isCardData, isDraggingACard, TCard, TColumn } from './data';
-
-type TCardState =
-  | {
-      type: 'idle';
-    }
-  | {
-      type: 'is-dragging';
-    }
-  | {
-      type: 'is-over';
-    }
-  | {
-      type: 'preview';
-      container: HTMLElement;
-      dragging: DOMRect;
-    };
-
-const idleCardState: TCardState = { type: 'idle' };
-
-const stateStyles: { [Key in TCardState['type']]?: string } = {
-  idle: 'bg-slate-700 hover:border-current cursor-grab',
-  'is-dragging': 'bg-slate-700 opacity-40',
-  preview: 'bg-slate-700 bg-blue-100',
-  'is-over': 'bg-slate-950 opacity-40',
-};
-
-const CardInner = forwardRef<
-  HTMLDivElement,
-  {
-    card: TCard;
-    state: TCardState;
-  }
->(function CardInner({ card, state }, ref) {
-  return (
-    <div
-      ref={ref}
-      className={`flex-shrink-0 rounded border border-transparent p-2 text-slate-300 ${stateStyles[state.type]}`}
-      style={
-        state.type === 'preview'
-          ? {
-              width: state.dragging.width,
-              height: state.dragging.height,
-              transform: !isSafari() ? 'rotate(4deg)' : undefined,
-            }
-          : undefined
-      }
-    >
-      <div className={`${state.type === 'is-over' ? 'invisible' : ''}`}>{card.description}</div>
-    </div>
-  );
-});
-
-function Card({ card, index }: { card: TCard; index: number }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [state, setState] = useState<TCardState>(idleCardState);
-  useEffect(() => {
-    const element = ref.current;
-    invariant(element);
-    return combine(
-      draggable({
-        element,
-        getInitialData: () => getCardData({ card }),
-        onGenerateDragPreview({ nativeSetDragImage, location, source }) {
-          const data = source.data;
-          invariant(isCardData(data));
-          setCustomNativeDragPreview({
-            nativeSetDragImage,
-            getOffset: preserveOffsetOnSource({ element, input: location.current.input }),
-            render({ container }) {
-              setState({
-                type: 'preview',
-                container,
-                dragging: element.getBoundingClientRect(),
-              });
-            },
-          });
-        },
-        onDragStart() {
-          setState({ type: 'is-dragging' });
-        },
-        onDrop() {
-          setState(idleCardState);
-        },
-      }),
-      dropTargetForElements({
-        element,
-        getIsSticky: () => true,
-        canDrop: isDraggingACard,
-        getData: () => getCardData({ card }),
-        onDragEnter({ source }) {
-          if (!isCardData(source.data)) {
-            return;
-          }
-          if (source.data.card.id === card.id) {
-            return;
-          }
-          setState({ type: 'is-over' });
-        },
-        onDragLeave({ source }) {
-          if (!isCardData(source.data)) {
-            return;
-          }
-          if (source.data.card.id === card.id) {
-            return;
-          }
-          setState(idleCardState);
-        },
-        onDrop() {
-          setState(idleCardState);
-        },
-      }),
-    );
-  }, [card, index]);
-  return (
-    <>
-      <CardInner ref={ref} state={state} card={card} />
-      {state.type === 'preview'
-        ? createPortal(<CardInner state={state} card={card} />, state.container)
-        : null}
-    </>
-  );
-}
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
+import { Card } from './card';
+import { isCardData, isDraggingACard, TCardData, TColumn } from './data';
 
 type TColumnState =
   | {
-      type: 'is-over-child-card';
-    }
-  | {
-      type: 'is-over-no-card';
+      type: 'is-card-over';
+      card: TCardData;
     }
   | {
       type: 'idle';
     };
+
+const columnStateStyles: { [Key in TColumnState['type']]: string } = {
+  idle: '',
+  'is-card-over': 'outline outline-2 outline-neutral-50',
+};
 
 const idleColumnState = { type: 'idle' } satisfies TColumnState;
 
@@ -171,52 +42,25 @@ export function Column({ column }: { column: TColumn }) {
         element: outer,
         canDrop: isDraggingACard,
         getIsSticky: () => true,
+        onDragStart({ source }) {
+          console.log('drag start: column');
+          if (!isCardData(source.data)) {
+            return;
+          }
+          setState({ type: 'is-card-over', card: source.data });
+        },
+        onDragEnter({ source }) {
+          if (!isCardData(source.data)) {
+            return;
+          }
+          setState({ type: 'is-card-over', card: source.data });
+        },
+        onDragLeave() {
+          setState(idleColumnState);
+        },
         onDrop() {
           console.log('column on drop');
-          // const dragging = source.data;
-          // if (!isCardData(dragging)) {
-          //   return;
-          // }
-
-          // const innerMostDropTarget = location.current.dropTargets[0];
-
-          // if (!innerMostDropTarget) {
-          //   return;
-          // }
-
-          // const dropTargetData = innerMostDropTarget.data;
-
-          // if (!isCardData(dropTargetData)) {
-          //   return;
-          // }
-
-          // console.log('on drop');
-          // setCards((current) => {
-          //   const startIndex = current.findIndex((card) => card.id === dragging.card.id);
-          //   const finishIndex = current.findIndex((card) => card.id === dropTargetData.card.id);
-
-          //   if (startIndex === -1 || finishIndex === -1) {
-          //     return current;
-          //   }
-
-          //   // shortcut: no change required
-          //   if (startIndex === finishIndex) {
-          //     return current;
-          //   }
-
-          //   console.log('reorder', {
-          //     dragging: dragging.card.id,
-          //     dropTarget: dropTargetData.card.id,
-          //     startIndex,
-          //     finishIndex,
-          //   });
-
-          //   return reorder({
-          //     list: current,
-          //     startIndex,
-          //     finishIndex,
-          //   });
-          // });
+          setState(idleColumnState);
         },
       }),
       autoScrollForElements({
@@ -245,16 +89,18 @@ export function Column({ column }: { column: TColumn }) {
   }, []);
 
   return (
-    <div className="flex w-80 flex-shrink-0 select-none flex-col bg-red-200" ref={outerRef}>
-      <div className="flex max-h-full flex-col rounded-lg bg-slate-800 text-slate-300">
-        <div className="flex flex-row items-center justify-between p-3">
+    <div className="flex w-80 flex-shrink-0 select-none flex-col" ref={outerRef}>
+      <div
+        className={`flex max-h-full flex-col rounded-lg bg-slate-800 text-neutral-50 ${columnStateStyles[state.type]}`}
+      >
+        <div className="flex flex-row items-center justify-between p-3 pb-2">
           <div className="pl-2 font-bold leading-4">{column.title}</div>
           <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
             <Ellipsis size={16} />
           </button>
         </div>
         <div
-          className="flex flex-col gap-3 overflow-y-auto p-3 pt-0 [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
+          className="flex flex-col gap-3 overflow-y-auto p-3 py-1 [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
           ref={scrollableRef}
         >
           {column.cards.map((card, index) => (
@@ -274,7 +120,6 @@ export function Column({ column }: { column: TColumn }) {
           </button>
         </div>
       </div>
-      {/* <div className="min-h-0 flex-shrink basis-full">Filler</div> */}
     </div>
   );
 }
