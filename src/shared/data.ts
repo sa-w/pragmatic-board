@@ -17,12 +17,17 @@ const cardKey = Symbol('card');
 export type TCardData = {
   [cardKey]: true;
   card: TCard;
+  columnId: string;
 };
 
-export function getCardData({ card }: Omit<TCardData, typeof cardKey>): TCardData {
+export function getCardData({
+  card,
+  columnId,
+}: Omit<TCardData, typeof cardKey> & { columnId: string }): TCardData {
   return {
     [cardKey]: true,
     card,
+    columnId,
   };
 }
 

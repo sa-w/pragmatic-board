@@ -65,7 +65,13 @@ const CardInner = forwardRef<
   );
 });
 
-export function Card({ card, index }: { card: TCard; index: number }) {
+const isOver: TCardState = { type: 'is-over' };
+
+export function CardShadow({ card }: { card: TCard }) {
+  return <CardInner state={isOver} card={card} />;
+}
+
+export function Card({ card, columnId }: { card: TCard; columnId: string }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [state, setState] = useState<TCardState>(idle);
   useEffect(() => {
@@ -74,7 +80,7 @@ export function Card({ card, index }: { card: TCard; index: number }) {
     return combine(
       draggable({
         element,
-        getInitialData: () => getCardData({ card }),
+        getInitialData: () => getCardData({ card, columnId }),
         onGenerateDragPreview({ nativeSetDragImage, location, source }) {
           const data = source.data;
           invariant(isCardData(data));
@@ -101,7 +107,7 @@ export function Card({ card, index }: { card: TCard; index: number }) {
         element,
         getIsSticky: () => true,
         canDrop: isDraggingACard,
-        getData: () => getCardData({ card }),
+        getData: () => getCardData({ card, columnId }),
         onDragEnter({ source }) {
           if (!isCardData(source.data)) {
             return;
@@ -125,7 +131,7 @@ export function Card({ card, index }: { card: TCard; index: number }) {
         },
       }),
     );
-  }, [card, index]);
+  }, [card, columnId]);
   return (
     <>
       <CardInner ref={ref} state={state} card={card} />

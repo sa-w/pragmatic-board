@@ -8,13 +8,13 @@ import invariant from 'tiny-invariant';
 import { autoScrollForElements } from '@/pdnd-auto-scroll/entry-point/element';
 import { unsafeOverflowAutoScrollForElements } from '@/pdnd-auto-scroll/entry-point/unsafe-overflow/element';
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { Card } from './card';
+import { Card, CardShadow } from './card';
 import { isCardData, isDraggingACard, TCardData, TColumn } from './data';
 
 type TColumnState =
   | {
       type: 'is-card-over';
-      card: TCardData;
+      dragging: TCardData;
     }
   | {
       type: 'idle';
@@ -47,13 +47,13 @@ export function Column({ column }: { column: TColumn }) {
           if (!isCardData(source.data)) {
             return;
           }
-          setState({ type: 'is-card-over', card: source.data });
+          setState({ type: 'is-card-over', dragging: source.data });
         },
         onDragEnter({ source }) {
           if (!isCardData(source.data)) {
             return;
           }
-          setState({ type: 'is-card-over', card: source.data });
+          setState({ type: 'is-card-over', dragging: source.data });
         },
         onDragLeave() {
           setState(idleColumnState);
@@ -89,7 +89,7 @@ export function Column({ column }: { column: TColumn }) {
   }, []);
 
   return (
-    <div className="flex w-80 flex-shrink-0 select-none flex-col" ref={outerRef}>
+    <div className="flex w-80 flex-shrink-0 select-none flex-col bg-red-100" ref={outerRef}>
       <div
         className={`flex max-h-full flex-col rounded-lg bg-slate-800 text-neutral-50 ${columnStateStyles[state.type]}`}
       >
@@ -103,9 +103,12 @@ export function Column({ column }: { column: TColumn }) {
           className="flex flex-col gap-3 overflow-y-auto p-3 py-1 [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
           ref={scrollableRef}
         >
-          {column.cards.map((card, index) => (
-            <Card key={card.id} card={card} index={index} />
+          {column.cards.map((card) => (
+            <Card key={card.id} card={card} columnId={column.id} />
           ))}
+          {state.type === 'is-card-over' && state.dragging.columnId !== column.id ? (
+            <CardShadow card={state.dragging.card} />
+          ) : null}
         </div>
         <div className="flex flex-row gap-2 p-3">
           <button
