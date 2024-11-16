@@ -37,7 +37,7 @@ type TCardState =
       dragging: DOMRect;
     };
 
-const idle: TCardState = { type: 'idle' };
+const idleCardState: TCardState = { type: 'idle' };
 
 const stateStyles: { [Key in TCardState['type']]?: string } = {
   idle: 'bg-slate-700 hover:border-current cursor-grab',
@@ -74,7 +74,7 @@ const CardInner = forwardRef<
 
 function Card({ card, index }: { card: TCard; index: number }) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const [state, setState] = useState<TCardState>(idle);
+  const [state, setState] = useState<TCardState>(idleCardState);
   useEffect(() => {
     const element = ref.current;
     invariant(element);
@@ -101,7 +101,7 @@ function Card({ card, index }: { card: TCard; index: number }) {
           setState({ type: 'is-dragging' });
         },
         onDrop() {
-          setState(idle);
+          setState(idleCardState);
         },
       }),
       dropTargetForElements({
@@ -125,10 +125,10 @@ function Card({ card, index }: { card: TCard; index: number }) {
           if (source.data.card.id === card.id) {
             return;
           }
-          setState(idle);
+          setState(idleCardState);
         },
         onDrop() {
-          setState(idle);
+          setState(idleCardState);
         },
       }),
     );
@@ -143,38 +143,54 @@ function Card({ card, index }: { card: TCard; index: number }) {
   );
 }
 
+type TColumnState =
+  | {
+      type: 'is-over-child-card';
+    }
+  | {
+      type: 'is-over-no-card';
+    }
+  | {
+      type: 'idle';
+    };
+
+const idleColumnState = { type: 'idle' } satisfies TColumnState;
+
 export function Column({ column }: { column: TColumn }) {
-  // const [cards, setCards] = useState<TCard[]>(() => getCards({ amount: 5 }));
   const scrollableRef = useRef<HTMLDivElement | null>(null);
+  const outerRef = useRef<HTMLDivElement | null>(null);
+  const [state, setState] = useState<TColumnState>(idleColumnState);
 
   useEffect(() => {
-    const element = scrollableRef.current;
-    invariant(element);
+    const outer = outerRef.current;
+    const scrollable = scrollableRef.current;
+    invariant(outer);
+    invariant(scrollable);
     return combine(
       dropTargetForElements({
-        element,
+        element: outer,
         canDrop: isDraggingACard,
         getIsSticky: () => true,
-        onDrop({ source, location }) {
+        onDrop() {
           console.log('column on drop');
-          const dragging = source.data;
-          if (!isCardData(dragging)) {
-            return;
-          }
+          // const dragging = source.data;
+          // if (!isCardData(dragging)) {
+          //   return;
+          // }
 
-          const innerMostDropTarget = location.current.dropTargets[0];
+          // const innerMostDropTarget = location.current.dropTargets[0];
 
-          if (!innerMostDropTarget) {
-            return;
-          }
+          // if (!innerMostDropTarget) {
+          //   return;
+          // }
 
-          const dropTargetData = innerMostDropTarget.data;
+          // const dropTargetData = innerMostDropTarget.data;
 
-          if (!isCardData(dropTargetData)) {
-            return;
-          }
+          // if (!isCardData(dropTargetData)) {
+          //   return;
+          // }
 
-          console.log('on drop');
+          // console.log('on drop');
           // setCards((current) => {
           //   const startIndex = current.findIndex((card) => card.id === dragging.card.id);
           //   const finishIndex = current.findIndex((card) => card.id === dropTargetData.card.id);
@@ -205,10 +221,10 @@ export function Column({ column }: { column: TColumn }) {
       }),
       autoScrollForElements({
         canScroll: isDraggingACard,
-        element,
+        element: scrollable,
       }),
       unsafeOverflowAutoScrollForElements({
-        element,
+        element: scrollable,
         canScroll: isDraggingACard,
         getOverflow() {
           return {
@@ -229,7 +245,7 @@ export function Column({ column }: { column: TColumn }) {
   }, []);
 
   return (
-    <div className="flex w-80 flex-shrink-0 select-none flex-col bg-red-200">
+    <div className="flex w-80 flex-shrink-0 select-none flex-col bg-red-200" ref={outerRef}>
       <div className="flex max-h-full flex-col rounded-lg bg-slate-800 text-slate-300">
         <div className="flex flex-row items-center justify-between p-3">
           <div className="pl-2 font-bold leading-4">{column.title}</div>
