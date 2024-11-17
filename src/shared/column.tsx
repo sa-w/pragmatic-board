@@ -152,7 +152,7 @@ export function Column({ column }: { column: TColumn }) {
             return;
           }
         },
-        onDragLeave({ source, self }) {
+        onDragLeave({ source }) {
           if (isColumnData(source.data) && source.data.column.id === column.id) {
             return;
           }
@@ -188,7 +188,7 @@ export function Column({ column }: { column: TColumn }) {
   }, []);
 
   return (
-    <div className="flex w-80 flex-shrink-0 select-none flex-col bg-red-100" ref={outerRef}>
+    <div className="flex w-72 flex-shrink-0 select-none flex-col bg-red-100" ref={outerRef}>
       <div
         className={`flex max-h-full flex-col rounded-lg bg-slate-800 text-neutral-50 ${stateStyles[state.type]}`}
         ref={innerRef}
