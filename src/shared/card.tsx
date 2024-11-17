@@ -72,6 +72,7 @@ export function CardShadow({ card }: { card: TCard }) {
 }
 
 export function Card({ card, columnId }: { card: TCard; columnId: string }) {
+  console.log('render', card.id);
   const ref = useRef<HTMLDivElement | null>(null);
   const [state, setState] = useState<TCardState>(idle);
   useEffect(() => {

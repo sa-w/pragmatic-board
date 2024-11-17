@@ -5,7 +5,7 @@ import {
   dropTargetForElements,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { Copy, Ellipsis, Plus } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import invariant from 'tiny-invariant';
 
 import { autoScrollForElements } from '@/pdnd-auto-scroll/entry-point/element';
@@ -59,6 +59,15 @@ const stateStyles: { [Key in TColumnState['type']]: string } = {
 };
 
 const idle = { type: 'idle' } satisfies TColumnState;
+
+/**
+ * A memoized component for rendering out the card.
+ *
+ * Created so that state changes to the column don't require all cards to be rendered
+ */
+const CardList = memo(function CardList({ column }: { column: TColumn }) {
+  return column.cards.map((card) => <Card key={card.id} card={card} columnId={column.id} />);
+});
 
 export function Column({ column }: { column: TColumn }) {
   const scrollableRef = useRef<HTMLDivElement | null>(null);
@@ -141,7 +150,7 @@ export function Column({ column }: { column: TColumn }) {
               dragging: source.data,
               isOverChildCard,
             };
-            // optimisation
+            // optimization
             setState((current) => {
               if (isShallowEqual(proposed, current)) {
                 console.log('keys equal - skipping update');
@@ -185,7 +194,7 @@ export function Column({ column }: { column: TColumn }) {
         },
       }),
     );
-  }, []);
+  }, [column]);
 
   return (
     <div className="flex w-72 flex-shrink-0 select-none flex-col bg-red-100" ref={outerRef}>
@@ -207,9 +216,7 @@ export function Column({ column }: { column: TColumn }) {
             className="flex flex-col gap-3 overflow-y-auto p-3 py-1 [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
             ref={scrollableRef}
           >
-            {column.cards.map((card) => (
-              <Card key={card.id} card={card} columnId={column.id} />
-            ))}
+            <CardList column={column} />
             {/* TODO: swap this for invisible over last item to avoid jumps */}
             {state.type === 'is-card-over' &&
             state.dragging.columnId !== column.id &&
