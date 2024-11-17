@@ -1,6 +1,9 @@
 'use client';
 
-import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import {
+  draggable,
+  dropTargetForElements,
+} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { Copy, Ellipsis, Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import invariant from 'tiny-invariant';
@@ -9,7 +12,17 @@ import { autoScrollForElements } from '@/pdnd-auto-scroll/entry-point/element';
 import { unsafeOverflowAutoScrollForElements } from '@/pdnd-auto-scroll/entry-point/unsafe-overflow/element';
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import { Card, CardShadow } from './card';
-import { isCardData, isDraggingACard, TCardData, TColumn } from './data';
+import {
+  getColumnData,
+  isCardData,
+  isColumnData,
+  isDraggingACard,
+  TCardData,
+  TColumn,
+} from './data';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
+import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
+import { isSafari } from './is-safari';
 
 type TColumnState =
   | {
@@ -18,32 +31,82 @@ type TColumnState =
     }
   | {
       type: 'idle';
+    }
+  | {
+      type: 'is-dragging';
+    }
+  | {
+      type: 'preview';
+      container: HTMLElement;
+      dragging: DOMRect;
     };
 
-const columnStateStyles: { [Key in TColumnState['type']]: string } = {
-  idle: '',
+const stateStyles: { [Key in TColumnState['type']]: string } = {
+  idle: 'cursor-grab',
   'is-card-over': 'outline outline-2 outline-neutral-50',
+  'is-dragging': 'opacity-40',
+  preview: '',
 };
 
-const idleColumnState = { type: 'idle' } satisfies TColumnState;
+const idle = { type: 'idle' } satisfies TColumnState;
 
 export function Column({ column }: { column: TColumn }) {
   const scrollableRef = useRef<HTMLDivElement | null>(null);
   const outerRef = useRef<HTMLDivElement | null>(null);
-  const [state, setState] = useState<TColumnState>(idleColumnState);
+  const headerRef = useRef<HTMLDivElement | null>(null);
+  const innerRef = useRef<HTMLDivElement | null>(null);
+  const [state, setState] = useState<TColumnState>(idle);
 
   useEffect(() => {
     const outer = outerRef.current;
     const scrollable = scrollableRef.current;
+    const header = headerRef.current;
+    const inner = innerRef.current;
     invariant(outer);
     invariant(scrollable);
+    invariant(header);
+    invariant(inner);
     return combine(
+      draggable({
+        element: header,
+        getInitialData: () => getColumnData({ column }),
+        onGenerateDragPreview({ source, location, nativeSetDragImage }) {
+          const data = source.data;
+          invariant(isColumnData(data));
+          setCustomNativeDragPreview({
+            nativeSetDragImage,
+            getOffset: preserveOffsetOnSource({ element: header, input: location.current.input }),
+            render({ container }) {
+              // setState({
+              //   type: 'preview',
+              //   container,
+              //   dragging: header.getBoundingClientRect(),
+              // });
+              const rect = inner.getBoundingClientRect();
+              const preview = inner.cloneNode(true);
+              invariant(preview instanceof HTMLElement);
+              preview.style.width = `${rect.width}px`;
+              preview.style.height = `${rect.height}px`;
+              if (!isSafari()) {
+                preview.style.transform = 'rotate(4deg)';
+              }
+
+              container.appendChild(preview);
+            },
+          });
+        },
+        onDragStart() {
+          setState({ type: 'is-dragging' });
+        },
+        onDrop() {
+          setState(idle);
+        },
+      }),
       dropTargetForElements({
         element: outer,
         canDrop: isDraggingACard,
         getIsSticky: () => true,
         onDragStart({ source }) {
-          console.log('drag start: column');
           if (!isCardData(source.data)) {
             return;
           }
@@ -56,11 +119,10 @@ export function Column({ column }: { column: TColumn }) {
           setState({ type: 'is-card-over', dragging: source.data });
         },
         onDragLeave() {
-          setState(idleColumnState);
+          setState(idle);
         },
         onDrop() {
-          console.log('column on drop');
-          setState(idleColumnState);
+          setState(idle);
         },
       }),
       autoScrollForElements({
@@ -91,9 +153,10 @@ export function Column({ column }: { column: TColumn }) {
   return (
     <div className="flex w-80 flex-shrink-0 select-none flex-col bg-red-100" ref={outerRef}>
       <div
-        className={`flex max-h-full flex-col rounded-lg bg-slate-800 text-neutral-50 ${columnStateStyles[state.type]}`}
+        className={`flex max-h-full flex-col rounded-lg bg-slate-800 text-neutral-50 ${stateStyles[state.type]}`}
+        ref={innerRef}
       >
-        <div className="flex flex-row items-center justify-between p-3 pb-2">
+        <div className="flex flex-row items-center justify-between p-3 pb-2" ref={headerRef}>
           <div className="pl-2 font-bold leading-4">{column.title}</div>
           <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
             <Ellipsis size={16} />

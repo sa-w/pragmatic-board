@@ -42,3 +42,28 @@ export function isDraggingACard({
 }): boolean {
   return isCardData(source.data);
 }
+
+const columnKey = Symbol('column');
+export type TColumnData = {
+  [columnKey]: true;
+  column: TColumn;
+};
+
+export function getColumnData({ column }: Omit<TColumnData, typeof columnKey>): TColumnData {
+  return {
+    [columnKey]: true,
+    column,
+  };
+}
+
+export function isColumnData(value: Record<string | symbol, unknown>): value is TColumnData {
+  return Boolean(value[columnKey]);
+}
+
+export function isDraggingAColumn({
+  source,
+}: {
+  source: { data: Record<string | symbol, unknown> };
+}): boolean {
+  return isColumnData(source.data);
+}
