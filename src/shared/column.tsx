@@ -28,6 +28,7 @@ import { isSafari } from './is-safari';
 type TColumnState =
   | {
       type: 'is-card-over';
+      isOverChildCard: boolean;
       dragging: TCardData;
     }
   | {
@@ -39,6 +40,16 @@ type TColumnState =
   | {
       type: 'is-dragging';
     };
+
+function isShallowEqual(obj1: Record<string, unknown>, obj2: Record<string, unknown>): boolean {
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+  return keys1.every((key1) => Object.is(obj1[key1], obj2[key1]));
+}
 
 const stateStyles: { [Key in TColumnState['type']]: string } = {
   idle: 'cursor-grab',
@@ -102,19 +113,43 @@ export function Column({ column }: { column: TColumn }) {
           return isDraggingACard({ source }) || isDraggingAColumn({ source });
         },
         getIsSticky: () => true,
-        onDragStart({ source }) {
+        onDragStart({ source, location }) {
           if (isCardData(source.data)) {
-            setState({ type: 'is-card-over', dragging: source.data });
+            const innerMost = location.current.dropTargets[0];
+            const isOverChildCard = Boolean(innerMost && isCardData(innerMost.data));
+            console.log({ isOverChildCard });
+            setState({ type: 'is-card-over', dragging: source.data, isOverChildCard });
           }
         },
-        onDragEnter({ source, self }) {
+        onDragEnter({ source, location }) {
           if (isCardData(source.data)) {
-            setState({ type: 'is-card-over', dragging: source.data });
+            const innerMost = location.current.dropTargets[0];
+            const isOverChildCard = Boolean(innerMost && isCardData(innerMost.data));
+            setState({ type: 'is-card-over', dragging: source.data, isOverChildCard });
             return;
           }
-          console.log('is column over?');
           if (isColumnData(source.data) && source.data.column.id !== column.id) {
             setState({ type: 'is-column-over' });
+          }
+        },
+        onDropTargetChange({ source, location }) {
+          if (isCardData(source.data)) {
+            const innerMost = location.current.dropTargets[0];
+            const isOverChildCard = Boolean(innerMost && isCardData(innerMost.data));
+            const proposed: TColumnState = {
+              type: 'is-card-over',
+              dragging: source.data,
+              isOverChildCard,
+            };
+            // optimisation
+            setState((current) => {
+              if (isShallowEqual(proposed, current)) {
+                console.log('keys equal - skipping update');
+                return current;
+              }
+              return proposed;
+            });
+            return;
           }
         },
         onDragLeave({ source, self }) {
@@ -175,7 +210,10 @@ export function Column({ column }: { column: TColumn }) {
             {column.cards.map((card) => (
               <Card key={card.id} card={card} columnId={column.id} />
             ))}
-            {state.type === 'is-card-over' && state.dragging.columnId !== column.id ? (
+            {/* TODO: swap this for invisible over last item to avoid jumps */}
+            {state.type === 'is-card-over' &&
+            state.dragging.columnId !== column.id &&
+            !state.isOverChildCard ? (
               <CardShadow card={state.dragging.card} />
             ) : null}
           </div>
