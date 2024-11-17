@@ -36,7 +36,7 @@ const stateStyles: { [Key in TCardState['type']]: string } = {
   idle: 'bg-slate-700 hover:outline outline-2 outline-neutral-50 cursor-grab',
   'is-dragging': 'bg-slate-700 opacity-40',
   preview: 'bg-slate-700 bg-blue-100',
-  'is-over': 'bg-slate-950 opacity-40',
+  'is-over': 'bg-slate-900',
 };
 
 const CardInner = forwardRef<

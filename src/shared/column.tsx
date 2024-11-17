@@ -17,6 +17,7 @@ import {
   isCardData,
   isColumnData,
   isDraggingACard,
+  isDraggingAColumn,
   TCardData,
   TColumn,
 } from './data';
@@ -30,22 +31,20 @@ type TColumnState =
       dragging: TCardData;
     }
   | {
+      type: 'is-column-over';
+    }
+  | {
       type: 'idle';
     }
   | {
       type: 'is-dragging';
-    }
-  | {
-      type: 'preview';
-      container: HTMLElement;
-      dragging: DOMRect;
     };
 
 const stateStyles: { [Key in TColumnState['type']]: string } = {
   idle: 'cursor-grab',
   'is-card-over': 'outline outline-2 outline-neutral-50',
   'is-dragging': 'opacity-40',
-  preview: '',
+  'is-column-over': 'bg-slate-900',
 };
 
 const idle = { type: 'idle' } satisfies TColumnState;
@@ -77,11 +76,6 @@ export function Column({ column }: { column: TColumn }) {
             nativeSetDragImage,
             getOffset: preserveOffsetOnSource({ element: header, input: location.current.input }),
             render({ container }) {
-              // setState({
-              //   type: 'preview',
-              //   container,
-              //   dragging: header.getBoundingClientRect(),
-              // });
               const rect = inner.getBoundingClientRect();
               const preview = inner.cloneNode(true);
               invariant(preview instanceof HTMLElement);
@@ -104,21 +98,29 @@ export function Column({ column }: { column: TColumn }) {
       }),
       dropTargetForElements({
         element: outer,
-        canDrop: isDraggingACard,
+        canDrop({ source }) {
+          return isDraggingACard({ source }) || isDraggingAColumn({ source });
+        },
         getIsSticky: () => true,
         onDragStart({ source }) {
-          if (!isCardData(source.data)) {
+          if (isCardData(source.data)) {
+            setState({ type: 'is-card-over', dragging: source.data });
+          }
+        },
+        onDragEnter({ source, self }) {
+          if (isCardData(source.data)) {
+            setState({ type: 'is-card-over', dragging: source.data });
             return;
           }
-          setState({ type: 'is-card-over', dragging: source.data });
+          console.log('is column over?');
+          if (isColumnData(source.data) && source.data.column.id !== column.id) {
+            setState({ type: 'is-column-over' });
+          }
         },
-        onDragEnter({ source }) {
-          if (!isCardData(source.data)) {
+        onDragLeave({ source, self }) {
+          if (isColumnData(source.data) && source.data.column.id === column.id) {
             return;
           }
-          setState({ type: 'is-card-over', dragging: source.data });
-        },
-        onDragLeave() {
           setState(idle);
         },
         onDrop() {
@@ -156,34 +158,39 @@ export function Column({ column }: { column: TColumn }) {
         className={`flex max-h-full flex-col rounded-lg bg-slate-800 text-neutral-50 ${stateStyles[state.type]}`}
         ref={innerRef}
       >
-        <div className="flex flex-row items-center justify-between p-3 pb-2" ref={headerRef}>
-          <div className="pl-2 font-bold leading-4">{column.title}</div>
-          <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
-            <Ellipsis size={16} />
-          </button>
-        </div>
+        {/* Extra wrapping element to make it easy to toggle visibility of content when a column is dragging over */}
         <div
-          className="flex flex-col gap-3 overflow-y-auto p-3 py-1 [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
-          ref={scrollableRef}
+          className={`flex max-h-full flex-col ${state.type === 'is-column-over' ? 'invisible' : ''}`}
         >
-          {column.cards.map((card) => (
-            <Card key={card.id} card={card} columnId={column.id} />
-          ))}
-          {state.type === 'is-card-over' && state.dragging.columnId !== column.id ? (
-            <CardShadow card={state.dragging.card} />
-          ) : null}
-        </div>
-        <div className="flex flex-row gap-2 p-3">
-          <button
-            type="button"
-            className="flex flex-grow flex-row gap-1 rounded p-2 hover:bg-slate-700 active:bg-slate-600"
+          <div className="flex flex-row items-center justify-between p-3 pb-2" ref={headerRef}>
+            <div className="pl-2 font-bold leading-4">{column.title}</div>
+            <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
+              <Ellipsis size={16} />
+            </button>
+          </div>
+          <div
+            className="flex flex-col gap-3 overflow-y-auto p-3 py-1 [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
+            ref={scrollableRef}
           >
-            <Plus size={16} />
-            <div className="leading-4">Add a card</div>
-          </button>
-          <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
-            <Copy size={16} />
-          </button>
+            {column.cards.map((card) => (
+              <Card key={card.id} card={card} columnId={column.id} />
+            ))}
+            {state.type === 'is-card-over' && state.dragging.columnId !== column.id ? (
+              <CardShadow card={state.dragging.card} />
+            ) : null}
+          </div>
+          <div className="flex flex-row gap-2 p-3">
+            <button
+              type="button"
+              className="flex flex-grow flex-row gap-1 rounded p-2 hover:bg-slate-700 active:bg-slate-600"
+            >
+              <Plus size={16} />
+              <div className="leading-4">Add a card</div>
+            </button>
+            <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
+              <Copy size={16} />
+            </button>
+          </div>
         </div>
       </div>
     </div>
