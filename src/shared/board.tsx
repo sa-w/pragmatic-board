@@ -134,9 +134,12 @@ export function Board() {
               return;
             }
 
-            const cardFinishIndex = destination.cards.findIndex(
+            const indexOfTarget = destination.cards.findIndex(
               (card) => card.id === dropTargetData.card.id,
             );
+
+            const closestEdge = extractClosestEdge(dropTargetData);
+            const finalIndex = closestEdge === 'bottom' ? indexOfTarget + 1 : indexOfTarget;
 
             // remove card from home list
             const homeCards = Array.from(home.cards);
@@ -144,7 +147,7 @@ export function Board() {
 
             // insert into destination list
             const destinationCards = Array.from(destination.cards);
-            destinationCards.splice(cardFinishIndex, 0, dragging.card);
+            destinationCards.splice(finalIndex, 0, dragging.card);
 
             const columns = Array.from(data.columns);
             columns[homeColumnIndex] = {
