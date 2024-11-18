@@ -11,7 +11,11 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-    "lib": ["es2022", "dom", "dom.iterable"],
+    "lib": [
+      "es2022",
+      "dom",
+      "dom.iterable"
+    ],
     "noEmit": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -23,9 +27,18 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
