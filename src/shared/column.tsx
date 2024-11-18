@@ -85,10 +85,12 @@ export function Column({ column }: { column: TColumn }) {
     invariant(scrollable);
     invariant(header);
     invariant(inner);
+
+    const data = getColumnData({ column });
     return combine(
       draggable({
         element: header,
-        getInitialData: () => getColumnData({ column }),
+        getInitialData: () => data,
         onGenerateDragPreview({ source, location, nativeSetDragImage }) {
           const data = source.data;
           invariant(isColumnData(data));
@@ -118,6 +120,7 @@ export function Column({ column }: { column: TColumn }) {
       }),
       dropTargetForElements({
         element: outer,
+        getData: () => data,
         canDrop({ source }) {
           return isDraggingACard({ source }) || isDraggingAColumn({ source });
         },

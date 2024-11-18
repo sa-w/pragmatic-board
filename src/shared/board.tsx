@@ -1,7 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { isCardData, isDraggingACard, isDraggingAColumn, TBoard, TCard, TColumn } from './data';
+import {
+  isCardData,
+  isColumnData,
+  isDraggingACard,
+  isDraggingAColumn,
+  TBoard,
+  TCard,
+  TColumn,
+} from './data';
 import { Column } from './column';
 import invariant from 'tiny-invariant';
 import { autoScrollForElements } from '@/pdnd-auto-scroll/entry-point/element';
@@ -58,6 +66,7 @@ export function Board() {
           if (!isCardData(dragging)) {
             return;
           }
+          console.log('drop down');
 
           const innerMost = location.current.dropTargets[0];
 
@@ -70,17 +79,21 @@ export function Board() {
           );
           const home: TColumn | undefined = data.columns[homeColumnIndex];
 
-          // should not happen
           if (!home) {
+            console.log('no home');
             return;
           }
+          const cardIndexInHome = home.cards.findIndex((card) => card.id === dragging.card.id);
 
           // dropping on a card
           if (isCardData(dropTargetData)) {
-            const cardIndexInHome = home.cards.findIndex((card) => card.id === dragging.card.id);
-
+            console.log('dropping onto card');
+            const destinationColumnIndex = data.columns.findIndex(
+              (column) => column.id === dropTargetData.columnId,
+            );
+            const destination = data.columns[destinationColumnIndex];
             // reordering in home column
-            if (home.id === dropTargetData.columnId) {
+            if (home === destination) {
               const cardFinishIndex = home.cards.findIndex(
                 (card) => card.id === dropTargetData.card.id,
               );
@@ -115,12 +128,7 @@ export function Board() {
             }
 
             // moving card from one column to another
-            console.log('↔ Moving cards between columns');
 
-            const destinationColumnIndex = data.columns.findIndex(
-              (column) => column.id === dropTargetData.columnId,
-            );
-            const destination = data.columns[destinationColumnIndex];
             // unable to find destination
             if (!destination) {
               return;
@@ -137,18 +145,69 @@ export function Board() {
             const destinationCards = Array.from(destination.cards);
             destinationCards.splice(cardFinishIndex, 0, dragging.card);
 
-            const updatedHome: TColumn = {
+            const columns = Array.from(data.columns);
+            columns[homeColumnIndex] = {
               ...home,
               cards: homeCards,
             };
-            const updatedDestination: TColumn = {
+            columns[destinationColumnIndex] = {
               ...destination,
               cards: destinationCards,
             };
-            const columns = Array.from(data.columns);
-            columns[homeColumnIndex] = updatedHome;
-            columns[destinationColumnIndex] = updatedDestination;
             setData({ ...data, columns });
+            return;
+          }
+
+          // dropping onto a column, but not onto a card
+          if (isColumnData(dropTargetData)) {
+            console.log('dropping into column');
+            const destinationColumnIndex = data.columns.findIndex(
+              (column) => column.id === dropTargetData.column.id,
+            );
+            const destination = data.columns[destinationColumnIndex];
+
+            if (!destination) {
+              return;
+            }
+
+            // dropping on home
+            if (home === destination) {
+              // move to last position
+              const reordered = reorder({
+                list: home.cards,
+                startIndex: cardIndexInHome,
+                finishIndex: home.cards.length - 1,
+              });
+
+              const updated: TColumn = {
+                ...home,
+                cards: reordered,
+              };
+              const columns = Array.from(data.columns);
+              columns[homeColumnIndex] = updated;
+              setData({ ...data, columns });
+              return;
+            }
+
+            // remove card from home list
+            const homeCards = Array.from(home.cards);
+            homeCards.splice(cardIndexInHome, 1);
+
+            // insert into destination list
+            const destinationCards = Array.from(destination.cards);
+            destinationCards.splice(destination.cards.length, 0, dragging.card);
+
+            const columns = Array.from(data.columns);
+            columns[homeColumnIndex] = {
+              ...home,
+              cards: homeCards,
+            };
+            columns[destinationColumnIndex] = {
+              ...destination,
+              cards: destinationCards,
+            };
+            setData({ ...data, columns });
+            return;
           }
         },
       }),
