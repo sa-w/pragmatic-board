@@ -46,6 +46,32 @@ export function isDraggingACard({
   return isCardData(source.data);
 }
 
+const cardDropTargetKey = Symbol('card-drop-target');
+export type TCardDropTargetData = {
+  [cardDropTargetKey]: true;
+  card: TCard;
+  columnId: string;
+};
+
+export function isCardDropTargetData(
+  value: Record<string | symbol, unknown>,
+): value is TCardDropTargetData {
+  return Boolean(value[cardDropTargetKey]);
+}
+
+export function getCardDropTargetData({
+  card,
+  columnId,
+}: Omit<TCardDropTargetData, typeof cardDropTargetKey> & {
+  columnId: string;
+}): TCardDropTargetData {
+  return {
+    [cardDropTargetKey]: true,
+    card,
+    columnId,
+  };
+}
+
 const columnKey = Symbol('column');
 export type TColumnData = {
   [columnKey]: true;

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   isCardData,
+  isCardDropTargetData,
   isColumnData,
   isDraggingACard,
   isDraggingAColumn,
@@ -83,14 +84,13 @@ export function Board() {
           const cardIndexInHome = home.cards.findIndex((card) => card.id === dragging.card.id);
 
           // dropping on a card
-          if (isCardData(dropTargetData)) {
+          if (isCardDropTargetData(dropTargetData)) {
             const destinationColumnIndex = data.columns.findIndex(
               (column) => column.id === dropTargetData.columnId,
             );
             const destination = data.columns[destinationColumnIndex];
             // reordering in home column
             if (home === destination) {
-              console.log('reordering card');
               const cardFinishIndex = home.cards.findIndex(
                 (card) => card.id === dropTargetData.card.id,
               );
@@ -110,6 +110,7 @@ export function Board() {
                 startIndex: cardIndexInHome,
                 finishIndex: cardFinishIndex,
               });
+              console.log('reordering card', { cardIndexInHome, cardFinishIndex });
 
               const updated: TColumn = {
                 ...home,

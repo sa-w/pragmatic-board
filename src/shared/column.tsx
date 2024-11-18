@@ -3,6 +3,7 @@
 import {
   draggable,
   dropTargetForElements,
+  ElementEventBasePayload,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { Copy, Ellipsis, Plus } from 'lucide-react';
 import { memo, useEffect, useRef, useState } from 'react';
@@ -15,6 +16,7 @@ import { Card, CardShadow } from './card';
 import {
   getColumnData,
   isCardData,
+  isCardDropTargetData,
   isColumnData,
   isDraggingACard,
   isDraggingAColumn,
@@ -24,12 +26,13 @@ import {
 import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
 import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
 import { isSafari } from './is-safari';
+import { DragLocationHistory } from '@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types';
 
 type TColumnState =
   | {
       type: 'is-card-over';
       isOverChildCard: boolean;
-      dragging: TCardData;
+      dragging: DOMRect;
     }
   | {
       type: 'is-column-over';
@@ -87,6 +90,26 @@ export function Column({ column }: { column: TColumn }) {
     invariant(inner);
 
     const data = getColumnData({ column });
+
+    function setIsCardOver({ data, location }: { data: TCardData; location: DragLocationHistory }) {
+      const innerMost = location.current.dropTargets[0];
+      const isOverChildCard = Boolean(innerMost && isCardDropTargetData(innerMost.data));
+
+      const proposed: TColumnState = {
+        type: 'is-card-over',
+        dragging: data.rect,
+        isOverChildCard,
+      };
+      // optimization - don't update state if we don't need to.
+      setState((current) => {
+        if (isShallowEqual(proposed, current)) {
+          console.log('keys equal - skipping update');
+          return current;
+        }
+        return proposed;
+      });
+    }
+
     return combine(
       draggable({
         element: header,
@@ -127,17 +150,12 @@ export function Column({ column }: { column: TColumn }) {
         getIsSticky: () => true,
         onDragStart({ source, location }) {
           if (isCardData(source.data)) {
-            const innerMost = location.current.dropTargets[0];
-            const isOverChildCard = Boolean(innerMost && isCardData(innerMost.data));
-            console.log({ isOverChildCard });
-            setState({ type: 'is-card-over', dragging: source.data, isOverChildCard });
+            setIsCardOver({ data: source.data, location });
           }
         },
         onDragEnter({ source, location }) {
           if (isCardData(source.data)) {
-            const innerMost = location.current.dropTargets[0];
-            const isOverChildCard = Boolean(innerMost && isCardData(innerMost.data));
-            setState({ type: 'is-card-over', dragging: source.data, isOverChildCard });
+            setIsCardOver({ data: source.data, location });
             return;
           }
           if (isColumnData(source.data) && source.data.column.id !== column.id) {
@@ -146,21 +164,7 @@ export function Column({ column }: { column: TColumn }) {
         },
         onDropTargetChange({ source, location }) {
           if (isCardData(source.data)) {
-            const innerMost = location.current.dropTargets[0];
-            const isOverChildCard = Boolean(innerMost && isCardData(innerMost.data));
-            const proposed: TColumnState = {
-              type: 'is-card-over',
-              dragging: source.data,
-              isOverChildCard,
-            };
-            // optimization
-            setState((current) => {
-              if (isShallowEqual(proposed, current)) {
-                console.log('keys equal - skipping update');
-                return current;
-              }
-              return proposed;
-            });
+            setIsCardOver({ data: source.data, location });
             return;
           }
         },
@@ -221,7 +225,7 @@ export function Column({ column }: { column: TColumn }) {
           >
             <CardList column={column} />
             {state.type === 'is-card-over' && !state.isOverChildCard ? (
-              <CardShadow dragging={state.dragging.rect} />
+              <CardShadow dragging={state.dragging} />
             ) : null}
           </div>
           <div className="flex flex-row gap-2 p-3">

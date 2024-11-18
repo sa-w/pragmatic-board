@@ -3,6 +3,7 @@
 import {
   draggable,
   dropTargetForElements,
+  monitorForElements,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
 import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
@@ -12,7 +13,14 @@ import invariant from 'tiny-invariant';
 
 import { isSafari } from '@/shared/is-safari';
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { getCardData, isCardData, isDraggingACard, TCard, TCardData } from './data';
+import {
+  getCardData,
+  getCardDropTargetData,
+  isCardData,
+  isDraggingACard,
+  TCard,
+  TCardData,
+} from './data';
 import {
   type Edge,
   attachClosestEdge,
@@ -66,20 +74,22 @@ const CardInner = forwardRef<
       {state.type === 'is-over' && state.closestEdge === 'top' ? (
         <CardShadow dragging={state.dragging} />
       ) : null}
-      <div
-        className={`rounded p-2 text-slate-300 ${stateStyles[state.type]}`}
-        style={
-          state.type === 'preview'
-            ? {
-                width: state.dragging.width,
-                height: state.dragging.height,
-                transform: !isSafari() ? 'rotate(4deg)' : undefined,
-              }
-            : undefined
-        }
-      >
-        <div>{card.description}</div>
-      </div>
+      {state.type !== 'is-dragging-left-self' ? (
+        <div
+          className={`rounded p-2 text-slate-300 ${stateStyles[state.type]}`}
+          style={
+            state.type === 'preview'
+              ? {
+                  width: state.dragging.width,
+                  height: state.dragging.height,
+                  transform: !isSafari() ? 'rotate(4deg)' : undefined,
+                }
+              : undefined
+          }
+        >
+          <div>{card.description}</div>
+        </div>
+      ) : null}
       {state.type === 'is-over' && state.closestEdge === 'bottom' ? (
         <CardShadow dragging={state.dragging} />
       ) : null}
@@ -90,9 +100,15 @@ const CardInner = forwardRef<
 export function Card({ card, columnId }: { card: TCard; columnId: string }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [state, setState] = useState<TCardState>(idle);
+
   useEffect(() => {
+    // if (!isMounted) {
+    //   return;
+    // }
+
     const element = ref.current;
     invariant(element);
+
     return combine(
       draggable({
         element,
@@ -124,9 +140,8 @@ export function Card({ card, columnId }: { card: TCard; columnId: string }) {
         element,
         getIsSticky: () => true,
         canDrop: isDraggingACard,
-        // TODO: avoid needing to re-compute rect
         getData: ({ element, input }) => {
-          const data = getCardData({ card, columnId, rect: element.getBoundingClientRect() });
+          const data = getCardDropTargetData({ card, columnId });
           return attachClosestEdge(data, { element, input, allowedEdges: ['top', 'bottom'] });
         },
         onDragEnter({ source, self }) {
@@ -154,7 +169,6 @@ export function Card({ card, columnId }: { card: TCard; columnId: string }) {
           }
           const closestEdge = extractClosestEdge(self.data);
           if (!closestEdge) {
-            console.log('no closest edge');
             return;
           }
 
@@ -175,13 +189,17 @@ export function Card({ card, columnId }: { card: TCard; columnId: string }) {
           setState(idle);
         },
       }),
+      monitorForElements({
+        // canMonitor: ({ source }) => source.element === element,
+        onDrop() {
+          setState(idle);
+        },
+      }),
     );
   }, [card, columnId]);
   return (
     <>
-      {state.type === 'is-dragging-left-self' ? null : (
-        <CardInner ref={ref} state={state} card={card} />
-      )}
+      <CardInner ref={ref} state={state} card={card} />
       {state.type === 'preview'
         ? createPortal(<CardInner state={state} card={card} />, state.container)
         : null}
