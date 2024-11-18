@@ -1,7 +1,7 @@
 'use client';
 
 import { bindAll } from 'bind-event-listener';
-import { SquareX, X } from 'lucide-react';
+import { Github, SquareX, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
@@ -47,6 +47,9 @@ export function TopBar() {
           {link.title}
         </Link>
       ))}
+      <Link href="http://github.com" className="ml-auto">
+        <Github size={16} />
+      </Link>
     </header>
   );
 }
