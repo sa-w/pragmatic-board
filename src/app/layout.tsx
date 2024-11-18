@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { SideNavigation } from './client/side-navigation';
-import { TopBar } from './client/top-bar';
+import { TopBar } from '../shared/top-bar';
 
 export const metadata: Metadata = {
   title: 'Auto scroll playground',
@@ -20,7 +19,7 @@ export default function RootLayout({
         {/* position: absolute needed for max-height:100% to be respected internally */}
         <div className="relative flex-grow">
           <div className="absolute inset-0">
-            <main className="h-full bg-background">{children}</main>
+            <main className="h-full bg-sky-700">{children}</main>
           </div>
         </div>
       </body>

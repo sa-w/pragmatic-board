@@ -19,6 +19,7 @@ import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/ad
 import { reorder } from '@atlaskit/pragmatic-drag-and-drop/reorder';
 import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { reorderWithEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/util/reorder-with-edge';
+import { bindAll } from 'bind-event-listener';
 
 function getInitialData(): TBoard {
   // Doing this so we get consistent ids on server and client
@@ -266,6 +267,8 @@ export function Board() {
       }),
     );
   }, [data]);
+
+  // TODO: Grab to scroll
 
   return (
     <div className="flex h-full flex-row gap-3 overflow-x-auto p-3" ref={scrollableRef}>
