@@ -90,6 +90,7 @@ export function Board() {
             const destination = data.columns[destinationColumnIndex];
             // reordering in home column
             if (home === destination) {
+              console.log('reordering card');
               const cardFinishIndex = home.cards.findIndex(
                 (card) => card.id === dropTargetData.card.id,
               );
@@ -126,6 +127,7 @@ export function Board() {
             if (!destination) {
               return;
             }
+
             const cardFinishIndex = destination.cards.findIndex(
               (card) => card.id === dropTargetData.card.id,
             );
@@ -164,6 +166,8 @@ export function Board() {
 
             // dropping on home
             if (home === destination) {
+              console.log('moving card to home column');
+
               // move to last position
               const reordered = reorder({
                 list: home.cards,
@@ -181,7 +185,10 @@ export function Board() {
               return;
             }
 
+            console.log('moving card to another column');
+
             // remove card from home list
+
             const homeCards = Array.from(home.cards);
             homeCards.splice(cardIndexInHome, 1);
 
@@ -244,7 +251,7 @@ export function Board() {
         },
       }),
       autoScrollForElements({
-        canScroll: isDraggingACard,
+        canScroll: ({ source }) => isDraggingACard({ source }) || isDraggingAColumn({ source }),
         getConfiguration: () => ({ maxScrollSpeed: 'fast' }),
         element,
       }),
