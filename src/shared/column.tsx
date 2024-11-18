@@ -219,25 +219,10 @@ export function Column({ column }: { column: TColumn }) {
             className="flex flex-col gap-3 overflow-y-auto p-3 py-1 [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
             ref={scrollableRef}
           >
-            {/* <CardList column={column} /> */}
-            {(() => {
-              if (state.type === 'is-card-over' && !state.isOverChildCard) {
-                const shadow = <CardShadow card={state.dragging.card} key="shadow" />;
-                if (!column.cards.length) {
-                  return [shadow];
-                }
-                const exceptLast = column.cards.slice(0, column.cards.length - 1);
-                return [
-                  ...exceptLast.map((card) => (
-                    <Card key={card.id} card={card} columnId={column.id} />
-                  )),
-                  shadow,
-                ];
-              }
-              return column.cards.map((card) => (
-                <Card key={card.id} card={card} columnId={column.id} />
-              ));
-            })()}
+            <CardList column={column} />
+            {state.type === 'is-card-over' && !state.isOverChildCard ? (
+              <CardShadow dragging={state.dragging.rect} />
+            ) : null}
           </div>
           <div className="flex flex-row gap-2 p-3">
             <button
