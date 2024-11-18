@@ -57,7 +57,6 @@ export function Board() {
   useEffect(() => {
     const element = scrollableRef.current;
     invariant(element);
-    console.log('setting up auto scrolling');
     return combine(
       monitorForElements({
         canMonitor: isDraggingACard,
@@ -66,7 +65,6 @@ export function Board() {
           if (!isCardData(dragging)) {
             return;
           }
-          console.log('drop down');
 
           const innerMost = location.current.dropTargets[0];
 
@@ -80,14 +78,12 @@ export function Board() {
           const home: TColumn | undefined = data.columns[homeColumnIndex];
 
           if (!home) {
-            console.log('no home');
             return;
           }
           const cardIndexInHome = home.cards.findIndex((card) => card.id === dragging.card.id);
 
           // dropping on a card
           if (isCardData(dropTargetData)) {
-            console.log('dropping onto card');
             const destinationColumnIndex = data.columns.findIndex(
               (column) => column.id === dropTargetData.columnId,
             );
@@ -97,9 +93,6 @@ export function Board() {
               const cardFinishIndex = home.cards.findIndex(
                 (card) => card.id === dropTargetData.card.id,
               );
-              console.log('🤝 Reordering card in same column');
-
-              console.log({ cardIndexInHome, cardFinishIndex, homeColumnIndex });
 
               // could not find cards needed
               if (cardIndexInHome === -1 || cardFinishIndex === -1) {
@@ -160,7 +153,6 @@ export function Board() {
 
           // dropping onto a column, but not onto a card
           if (isColumnData(dropTargetData)) {
-            console.log('dropping into column');
             const destinationColumnIndex = data.columns.findIndex(
               (column) => column.id === dropTargetData.column.id,
             );
@@ -213,6 +205,43 @@ export function Board() {
       }),
       monitorForElements({
         canMonitor: isDraggingAColumn,
+        onDrop({ source, location }) {
+          const dragging = source.data;
+          if (!isColumnData(dragging)) {
+            return;
+          }
+
+          const innerMost = location.current.dropTargets[0];
+
+          if (!innerMost) {
+            return;
+          }
+          const dropTargetData = innerMost.data;
+
+          if (!isColumnData(dropTargetData)) {
+            return;
+          }
+
+          const homeIndex = data.columns.findIndex((column) => column.id === dragging.column.id);
+          const destinationIndex = data.columns.findIndex(
+            (column) => column.id === dropTargetData.column.id,
+          );
+
+          if (homeIndex === -1 || destinationIndex === -1) {
+            return;
+          }
+
+          if (homeIndex === destinationIndex) {
+            return;
+          }
+
+          const reordered = reorder({
+            list: data.columns,
+            startIndex: homeIndex,
+            finishIndex: destinationIndex,
+          });
+          setData({ ...data, columns: reordered });
+        },
       }),
       autoScrollForElements({
         canScroll: isDraggingACard,
