@@ -17,6 +17,8 @@ import { autoScrollForElements } from '@/pdnd-auto-scroll/entry-point/element';
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { reorder } from '@atlaskit/pragmatic-drag-and-drop/reorder';
+import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { reorderWithEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/util/reorder-with-edge';
 
 function getInitialData(): TBoard {
   // Doing this so we get consistent ids on server and client
@@ -105,12 +107,15 @@ export function Board() {
                 return;
               }
 
-              const reordered = reorder({
+              const closestEdge = extractClosestEdge(dropTargetData);
+
+              const reordered = reorderWithEdge({
+                axis: 'vertical',
                 list: home.cards,
                 startIndex: cardIndexInHome,
-                finishIndex: cardFinishIndex,
+                indexOfTarget: cardFinishIndex,
+                closestEdgeOfTarget: closestEdge,
               });
-              console.log('reordering card', { cardIndexInHome, cardFinishIndex });
 
               const updated: TColumn = {
                 ...home,

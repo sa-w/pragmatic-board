@@ -26,6 +26,7 @@ import {
   attachClosestEdge,
   extractClosestEdge,
 } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { isShallowEqual } from './is-shallow-equal';
 
 type TCardState =
   | {
@@ -161,7 +162,6 @@ export function Card({ card, columnId }: { card: TCard; columnId: string }) {
             return;
           }
 
-          console.log({ closestEdge });
           setState({ type: 'is-over', dragging: source.data.rect, closestEdge });
         },
         onDrag({ source, self }) {
@@ -175,10 +175,14 @@ export function Card({ card, columnId }: { card: TCard; columnId: string }) {
           if (!closestEdge) {
             return;
           }
-
-          // TODO: perf
-          console.log({ closestEdge });
-          setState({ type: 'is-over', dragging: source.data.rect, closestEdge });
+          // optimization - don't update state if we don't need to.
+          const proposed: TCardState = { type: 'is-over', dragging: source.data.rect, closestEdge };
+          setState((current) => {
+            if (isShallowEqual(proposed, current)) {
+              return current;
+            }
+            return proposed;
+          });
         },
         onDragLeave({ source }) {
           if (!isCardData(source.data)) {

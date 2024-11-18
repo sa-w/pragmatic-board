@@ -27,6 +27,7 @@ import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/el
 import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
 import { isSafari } from './is-safari';
 import { DragLocationHistory } from '@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types';
+import { isShallowEqual } from './is-shallow-equal';
 
 type TColumnState =
   | {
@@ -43,16 +44,6 @@ type TColumnState =
   | {
       type: 'is-dragging';
     };
-
-function isShallowEqual(obj1: Record<string, unknown>, obj2: Record<string, unknown>): boolean {
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
-
-  if (keys1.length !== keys2.length) {
-    return false;
-  }
-  return keys1.every((key1) => Object.is(obj1[key1], obj2[key1]));
-}
 
 const stateStyles: { [Key in TColumnState['type']]: string } = {
   idle: 'cursor-grab',
@@ -103,7 +94,6 @@ export function Column({ column }: { column: TColumn }) {
       // optimization - don't update state if we don't need to.
       setState((current) => {
         if (isShallowEqual(proposed, current)) {
-          console.log('keys equal - skipping update');
           return current;
         }
         return proposed;
