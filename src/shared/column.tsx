@@ -220,12 +220,14 @@ export function Column({ column }: { column: TColumn }) {
             </button>
           </div>
           <div
-            className="flex flex-col gap-3 overflow-y-auto p-3 py-1 [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
+            className="flex flex-col overflow-y-auto [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
             ref={scrollableRef}
           >
             <CardList column={column} />
             {state.type === 'is-card-over' && !state.isOverChildCard ? (
-              <CardShadow dragging={state.dragging} />
+              <div className="flex-shrink-0 px-3 py-1">
+                <CardShadow dragging={state.dragging} />
+              </div>
             ) : null}
           </div>
           <div className="flex flex-row gap-2 p-3">
