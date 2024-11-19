@@ -16,7 +16,15 @@ const links: TLink[] = [
   { title: 'Two columns', href: '/two-columns' },
 ];
 
-function BooleanField({ field, fieldKey }: { field: TBooleanField; fieldKey: keyof TSettings }) {
+function BooleanField({
+  field,
+  fieldKey,
+  settings,
+}: {
+  field: TBooleanField;
+  fieldKey: keyof TSettings;
+  settings: TSettings;
+}) {
   const { update } = useContext(SettingsContext);
   return (
     <label className="flex flex-row gap-2 rounded border p-2">
@@ -27,13 +35,28 @@ function BooleanField({ field, fieldKey }: { field: TBooleanField; fieldKey: key
       <input
         type="checkbox"
         checked={field.value}
+        disabled={
+          field.dependsOnBooleanField
+            ? settings[field.dependsOnBooleanField].value === false
+              ? true
+              : false
+            : false
+        }
         onChange={() => update({ key: fieldKey, value: !field.value })}
       />
     </label>
   );
 }
 
-function SelectField({ field, fieldKey }: { field: TSelectField<any>; fieldKey: keyof TSettings }) {
+function SelectField({
+  field,
+  fieldKey,
+  settings,
+}: {
+  field: TSelectField<any>;
+  fieldKey: keyof TSettings;
+  settings: TSettings;
+}) {
   const { update } = useContext(SettingsContext);
   return (
     <div className="flex flex-col gap-2 rounded border p-2">
@@ -42,6 +65,13 @@ function SelectField({ field, fieldKey }: { field: TSelectField<any>; fieldKey: 
       <select
         className="rounded p-2"
         value={field.value}
+        disabled={
+          field.dependsOnBooleanField
+            ? settings[field.dependsOnBooleanField].value === false
+              ? true
+              : false
+            : false
+        }
         onChange={(event) => update({ key: fieldKey, value: event.target.value as any })}
       >
         {field.options.map((option) => (
@@ -124,7 +154,11 @@ export function TopBar() {
         </header>
       ) : null}
       <div className="fixed right-2 top-0 isolate z-[1] flex h-12 flex-row items-center justify-center">
-        {settings.isFPSPanelEnabled.value ? <FPSPanel /> : null}
+        {settings.isFPSPanelEnabled.value ? (
+          <div className="pr-1">
+            <FPSPanel />
+          </div>
+        ) : null}
         <button
           type="button"
           className="rounded p-2 text-white hover:bg-sky-700 active:bg-sky-600"
@@ -149,10 +183,24 @@ export function TopBar() {
           >
             {Object.entries(settings).map(([key, field]) => {
               if (field.type === 'boolean') {
-                return <BooleanField field={field} key={key} fieldKey={key as keyof TSettings} />;
+                return (
+                  <BooleanField
+                    field={field}
+                    key={key}
+                    fieldKey={key as keyof TSettings}
+                    settings={settings}
+                  />
+                );
               }
               if (field.type === 'select') {
-                return <SelectField field={field} key={key} fieldKey={key as keyof TSettings} />;
+                return (
+                  <SelectField
+                    field={field}
+                    key={key}
+                    fieldKey={key as keyof TSettings}
+                    settings={settings}
+                  />
+                );
               }
               return null;
             })}

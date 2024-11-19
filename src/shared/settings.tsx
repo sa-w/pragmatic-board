@@ -8,6 +8,8 @@ export type TSelectField<T> = {
   description: string;
   options: T[];
   value: T;
+  // TODO: limit to boolean fields
+  dependsOnBooleanField?: keyof TSettings;
 };
 
 export type TBooleanField = {
@@ -15,6 +17,8 @@ export type TBooleanField = {
   title: string;
   description: string;
   value: boolean;
+  // TODO: limit to boolean fields
+  dependsOnBooleanField?: keyof TSettings;
 };
 
 export type TSettings = {
@@ -34,18 +38,19 @@ const defaultSettings: TSettings = {
     description: 'Whether our custom auto scroller should be enabled',
     value: true,
   },
-
   isDistanceDampeningEnabled: {
     type: 'boolean',
     title: 'Distance dampening',
     description: 'Increase the max scroll speed as you get closer to an edge',
     value: true,
+    dependsOnBooleanField: 'isGlobalEnabled',
   },
   isTimeDampeningEnabled: {
     type: 'boolean',
     title: 'Time dampening',
     description: 'Increase the max scroll speed the longer you are on an element',
     value: true,
+    dependsOnBooleanField: 'isGlobalEnabled',
   },
   boardScrollSpeed: {
     type: 'select',
@@ -53,6 +58,7 @@ const defaultSettings: TSettings = {
     description: 'What should the max horizontal scroll speed the board be?',
     options: ['fast', 'standard'],
     value: 'fast',
+    dependsOnBooleanField: 'isGlobalEnabled',
   },
   columnScrollSpeed: {
     type: 'select',
@@ -60,6 +66,7 @@ const defaultSettings: TSettings = {
     description: 'What should the max vertical scroll speed for columns be?',
     options: ['fast', 'standard'],
     value: 'standard',
+    dependsOnBooleanField: 'isGlobalEnabled',
   },
   isFPSPanelEnabled: {
     type: 'boolean',
@@ -72,6 +79,7 @@ const defaultSettings: TSettings = {
     title: 'Drop FPS 🔥',
     description: 'Start heavy process that will cause the frame rate on the page to drop',
     value: false,
+    dependsOnBooleanField: 'isFPSPanelEnabled',
   },
 };
 
