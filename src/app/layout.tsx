@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { TopBar } from '../shared/top-bar';
+import { TopBar } from './top-bar';
 
 export const metadata: Metadata = {
   title: 'Auto scroll playground',

@@ -4,7 +4,7 @@ import { bindAll } from 'bind-event-listener';
 import { PanelTopClose, PanelTopOpen } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 
 type TLink = { title: string; href: string };
 
@@ -32,18 +32,6 @@ export function TopBar() {
       },
     ]);
   }, [toggle]);
-
-  const toggleButton = (
-    <div className="fixed right-2 top-0 z-10 flex h-12 flex-col items-center">
-      <button
-        type="button"
-        className="rounded p-2 text-white hover:bg-sky-700 active:bg-sky-600"
-        onClick={() => setIsOpen(true)}
-      >
-        <PanelTopOpen size={16} />
-      </button>
-    </div>
-  );
 
   return (
     <>
