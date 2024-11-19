@@ -2,7 +2,7 @@
 
 import { SettingsContext } from '@/shared/settings';
 import { bindAll } from 'bind-event-listener';
-import { PanelTopClose, PanelTopOpen } from 'lucide-react';
+import { PanelTopClose, PanelTopOpen, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { use, useCallback, useContext, useEffect, useState } from 'react';
@@ -19,6 +19,7 @@ const links: TLink[] = [
 export function TopBar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const { settings } = useContext(SettingsContext);
 
   const toggle = useCallback(() => setIsOpen((current) => !current), []);
@@ -61,6 +62,19 @@ export function TopBar() {
         >
           {isOpen ? <PanelTopClose size={16} /> : <PanelTopOpen size={16} />}
         </button>
+        <button
+          type="button"
+          className="rounded p-2 text-white hover:bg-sky-700 active:bg-sky-600"
+          onClick={() => setIsSettingsOpen((current) => !current)}
+          aria-label="toggle top bar visibility"
+        >
+          <Settings size={16} />
+        </button>
+        {isSettingsOpen ? (
+          <div className="absolute right-0 top-11 w-72 rounded bg-slate-100 p-2">
+            Settings go here
+          </div>
+        ) : null}
       </div>
     </>
   );
