@@ -11,7 +11,7 @@ type State =
   | {
       type: 'running';
       frameId: number;
-      lastFrameTime: number;
+      timeLastFrameFinished: number;
       fpsValues: number[];
     };
 
@@ -42,23 +42,36 @@ export function FPSPanel() {
   useEffect(() => {
     let state: State = {
       type: 'initializing',
-      frameId: requestAnimationFrame((current) => {
+      frameId: requestAnimationFrame((timeLastFrameFinished) => {
         state = {
           type: 'running',
           fpsValues: [],
-          lastFrameTime: current,
+          timeLastFrameFinished,
           frameId: schedule(),
         };
       }),
     };
 
     function schedule() {
-      return requestAnimationFrame((current) => {
+      return requestAnimationFrame((timeLastFrameFinished) => {
         if (state.type !== 'running') {
           return;
         }
 
-        const diff = current - state.lastFrameTime;
+        const diff = timeLastFrameFinished - state.timeLastFrameFinished;
+
+        // protecting against bad data.
+        // Sometimes the first frame can be 0ms
+        if (diff <= 0) {
+          state = {
+            type: 'running',
+            fpsValues: state.fpsValues,
+            timeLastFrameFinished,
+            frameId: schedule(),
+          };
+          return;
+        }
+
         const fps = 1000 / diff;
         const fpsValues = [...state.fpsValues, fps];
 
@@ -72,8 +85,8 @@ export function FPSPanel() {
 
         state = {
           type: 'running',
-          fpsValues: fpsValues,
-          lastFrameTime: current,
+          fpsValues,
+          timeLastFrameFinished,
           frameId: schedule(),
         };
       });
