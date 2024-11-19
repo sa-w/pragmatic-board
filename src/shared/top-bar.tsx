@@ -1,7 +1,7 @@
 'use client';
 
 import { bindAll } from 'bind-event-listener';
-import { Github, SquareX, X } from 'lucide-react';
+import { Github, PanelTopClose, PanelTopOpen, SquareX, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
@@ -33,24 +33,43 @@ export function TopBar() {
     ]);
   }, [toggle]);
 
-  if (!isOpen) {
-    return null;
-  }
+  const toggleButton = (
+    <div className="fixed right-2 top-0 z-10 flex h-12 flex-col items-center">
+      <button
+        type="button"
+        className="rounded p-2 text-white hover:bg-sky-700 active:bg-sky-600"
+        onClick={() => setIsOpen(true)}
+      >
+        <PanelTopOpen size={16} />
+      </button>
+    </div>
+  );
 
   return (
-    <header className="flex flex-row items-center gap-3 border-b bg-sky-800 p-2 px-3 leading-4 text-white">
-      {links.map((link) => (
-        <Link
-          href={link.href}
-          key={link.href}
-          className={`rounded p-2 font-bold hover:bg-blue-500 active:bg-blue-400 ${pathname === link.href ? 'bg-blue-600' : ''}`}
+    <>
+      {isOpen ? (
+        <header className="flex h-12 flex-row items-center gap-3 border-b bg-sky-800 px-3 leading-4 text-white">
+          {links.map((link) => (
+            <Link
+              href={link.href}
+              key={link.href}
+              className={`rounded p-2 font-bold hover:bg-sky-700 active:bg-sky-600 ${pathname === link.href ? 'bg-blue-900' : ''}`}
+            >
+              {link.title}
+            </Link>
+          ))}
+        </header>
+      ) : null}
+      <div className="fixed right-2 top-0 isolate z-[1] flex h-12 flex-col justify-center">
+        <button
+          type="button"
+          className="rounded p-2 text-white hover:bg-sky-700 active:bg-sky-600"
+          onClick={toggle}
+          aria-label="toggle top bar visibility"
         >
-          {link.title}
-        </Link>
-      ))}
-      <Link href="http://github.com" className="ml-auto">
-        <Github size={16} />
-      </Link>
-    </header>
+          {isOpen ? <PanelTopClose size={16} /> : <PanelTopOpen size={16} />}
+        </button>
+      </div>
+    </>
   );
 }
