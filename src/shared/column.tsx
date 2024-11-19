@@ -207,7 +207,7 @@ export function Column({ column }: { column: TColumn }) {
         },
       }),
     );
-  }, [column]);
+  }, [column, settings]);
 
   return (
     <div className="flex w-72 flex-shrink-0 select-none flex-col bg-red-100" ref={outerRef}>

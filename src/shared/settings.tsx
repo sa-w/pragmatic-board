@@ -17,7 +17,7 @@ export type TBooleanField = {
   value: boolean;
 };
 
-type TSettings = {
+export type TSettings = {
   isGlobalEnabled: TBooleanField;
   isFPSPanelEnabled: TBooleanField;
   isCPUBurnEnabled: TBooleanField;
@@ -77,7 +77,10 @@ const defaultSettings: TSettings = {
 
 export type TSettingsContext = {
   settings: TSettings;
-  update: (args: Partial<TSettings>) => void;
+  update: <TKey extends keyof TSettings>(args: {
+    key: TKey;
+    value: TSettings[TKey]['value'];
+  }) => void;
 };
 
 export const SettingsContext = createContext<TSettingsContext>({
@@ -91,8 +94,16 @@ export function SettingsContextProvider({ children }: { children: ReactNode }) {
   const value: TSettingsContext = useMemo(() => {
     return {
       settings,
-      update: (change: Partial<TSettings>) => {
-        setSettings({ ...settings, ...change });
+      update: <TKey extends keyof TSettings>({
+        key,
+        value,
+      }: {
+        key: TKey;
+        value: TSettings[TKey]['value'];
+      }) => {
+        const clone = structuredClone(settings);
+        clone[key].value = value;
+        setSettings(clone);
       },
     };
   }, [settings]);

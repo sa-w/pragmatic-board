@@ -37,7 +37,7 @@ export function FPSPanel() {
     return function cleanup() {
       clearInterval(timerId);
     };
-  });
+  }, [settings]);
 
   useEffect(() => {
     let state: State = {

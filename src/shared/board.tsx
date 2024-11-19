@@ -239,7 +239,7 @@ export function Board({ initial }: { initial: TBoard }) {
         element,
       }),
     );
-  }, [data]);
+  }, [data, settings]);
 
   return (
     <div className="flex h-full flex-row gap-3 overflow-x-auto p-3" ref={scrollableRef}>

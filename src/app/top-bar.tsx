@@ -1,13 +1,12 @@
 'use client';
 
-import { SettingsContext, TBooleanField, TSelectField } from '@/shared/settings';
+import { SettingsContext, TBooleanField, TSelectField, TSettings } from '@/shared/settings';
 import { bindAll } from 'bind-event-listener';
-import { ChevronDown, PanelTopClose, PanelTopOpen, Settings } from 'lucide-react';
+import { PanelTopClose, PanelTopOpen, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { use, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { FPSPanel } from './fps-panel';
-import invariant from 'tiny-invariant';
 
 type TLink = { title: string; href: string };
 
@@ -17,26 +16,36 @@ const links: TLink[] = [
   { title: 'Two columns', href: '/two-columns' },
 ];
 
-function BooleanField({ field }: { field: TBooleanField }) {
+function BooleanField({ field, fieldKey }: { field: TBooleanField; fieldKey: keyof TSettings }) {
+  const { update } = useContext(SettingsContext);
   return (
     <label className="flex flex-row gap-2 rounded border p-2">
       <div className="flex flex-col">
         <span className="font-bold">{field.title}</span>
         <span className="text-balance text-sm">{field.description}</span>
       </div>
-      <input type="checkbox" checked={field.value} />
+      <input
+        type="checkbox"
+        checked={field.value}
+        onChange={() => update({ key: fieldKey, value: !field.value })}
+      />
     </label>
   );
 }
 
-function SelectField({ field }: { field: TSelectField<any> }) {
+function SelectField({ field, fieldKey }: { field: TSelectField<any>; fieldKey: keyof TSettings }) {
+  const { update } = useContext(SettingsContext);
   return (
     <div className="flex flex-col gap-2 rounded border p-2">
       <span className="font-bold">{field.title}</span>
       <span className="text-balance text-sm">{field.description}</span>
-      <select className="rounded p-2">
+      <select
+        className="rounded p-2"
+        value={field.value}
+        onChange={(event) => update({ key: fieldKey, value: event.target.value as any })}
+      >
         {field.options.map((option) => (
-          <option selected={field.value === option} key={option}>
+          <option key={option} value={option}>
             {option}
           </option>
         ))}
@@ -135,15 +144,15 @@ export function TopBar() {
         </button>
         {isSettingsOpen ? (
           <div
-            className="absolute right-0 top-11 flex w-80 flex-col gap-2 rounded bg-slate-100 p-2"
+            className="absolute right-0 top-11 flex w-80 select-none flex-col gap-2 rounded bg-slate-100 p-2"
             ref={settingsDialogRef}
           >
             {Object.entries(settings).map(([key, field]) => {
               if (field.type === 'boolean') {
-                return <BooleanField field={field} key={key} />;
+                return <BooleanField field={field} key={key} fieldKey={key as keyof TSettings} />;
               }
               if (field.type === 'select') {
-                return <SelectField field={field} key={key} />;
+                return <SelectField field={field} key={key} fieldKey={key as keyof TSettings} />;
               }
               return null;
             })}
