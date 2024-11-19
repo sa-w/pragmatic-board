@@ -172,20 +172,20 @@ export function Column({ column }: { column: TColumn }) {
       }),
       autoScrollForElements({
         canScroll({ source }) {
-          if (!settings.isGlobalEnabled.value) {
+          if (!settings.isGlobalEnabled) {
             return false;
           }
 
           return isDraggingACard({ source });
         },
-        getConfiguration: () => ({ maxScrollSpeed: settings.columnScrollSpeed.value }),
+        getConfiguration: () => ({ maxScrollSpeed: settings.columnScrollSpeed }),
         element: scrollable,
       }),
       unsafeOverflowAutoScrollForElements({
         element: scrollable,
-        getConfiguration: () => ({ maxScrollSpeed: settings.columnScrollSpeed.value }),
+        getConfiguration: () => ({ maxScrollSpeed: settings.columnScrollSpeed }),
         canScroll({ source }) {
-          if (!settings.isGlobalEnabled.value) {
+          if (!settings.isGlobalEnabled) {
             return false;
           }
 

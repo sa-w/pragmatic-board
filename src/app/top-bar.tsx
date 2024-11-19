@@ -1,6 +1,12 @@
 'use client';
 
-import { SettingsContext, TBooleanField, TSelectField, TSettings } from '@/shared/settings';
+import {
+  SettingsContext,
+  TBooleanField,
+  TSelectField,
+  TSettings,
+  TupleToUnion,
+} from '@/shared/settings';
 import { bindAll } from 'bind-event-listener';
 import { PanelTopClose, PanelTopOpen, Settings } from 'lucide-react';
 import Link from 'next/link';
@@ -19,11 +25,11 @@ const links: TLink[] = [
 function BooleanField({
   field,
   fieldKey,
-  settings,
+  value,
 }: {
   field: TBooleanField;
   fieldKey: keyof TSettings;
-  settings: TSettings;
+  value: boolean;
 }) {
   const { update } = useContext(SettingsContext);
   return (
@@ -32,18 +38,7 @@ function BooleanField({
         <span className="font-bold">{field.title}</span>
         <span className="text-balance text-sm">{field.description}</span>
       </div>
-      <input
-        type="checkbox"
-        checked={field.value}
-        disabled={
-          field.dependsOnBooleanField
-            ? settings[field.dependsOnBooleanField].value === false
-              ? true
-              : false
-            : false
-        }
-        onChange={() => update({ key: fieldKey, value: !field.value })}
-      />
+      <input type="checkbox" checked={value} onChange={() => update({ [fieldKey]: !value })} />
     </label>
   );
 }
@@ -51,11 +46,11 @@ function BooleanField({
 function SelectField({
   field,
   fieldKey,
-  settings,
+  value,
 }: {
-  field: TSelectField<any>;
+  field: TSelectField<string>;
   fieldKey: keyof TSettings;
-  settings: TSettings;
+  value: string;
 }) {
   const { update } = useContext(SettingsContext);
   return (
@@ -64,15 +59,8 @@ function SelectField({
       <span className="text-balance text-sm">{field.description}</span>
       <select
         className="rounded p-2"
-        value={field.value}
-        disabled={
-          field.dependsOnBooleanField
-            ? settings[field.dependsOnBooleanField].value === false
-              ? true
-              : false
-            : false
-        }
-        onChange={(event) => update({ key: fieldKey, value: event.target.value as any })}
+        value={value}
+        onChange={(event) => update({ [fieldKey]: event.target.value as any })}
       >
         {field.options.map((option) => (
           <option key={option} value={option}>
@@ -90,7 +78,7 @@ export function TopBar() {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const settingsDialogRef = useRef<HTMLDivElement | null>(null);
   const settingsTriggerRef = useRef<HTMLButtonElement | null>(null);
-  const { settings } = useContext(SettingsContext);
+  const { settings, fields } = useContext(SettingsContext);
 
   useEffect(() => {
     return bindAll(window, [
@@ -154,7 +142,7 @@ export function TopBar() {
         </header>
       ) : null}
       <div className="fixed right-2 top-0 isolate z-[1] flex h-12 flex-row items-center justify-center">
-        {settings.isFPSPanelEnabled.value ? (
+        {settings.isFPSPanelEnabled ? (
           <div className="pr-1">
             <FPSPanel />
           </div>
@@ -181,14 +169,17 @@ export function TopBar() {
             className="absolute right-0 top-11 flex w-80 select-none flex-col gap-2 rounded bg-slate-100 p-2"
             ref={settingsDialogRef}
           >
-            {Object.entries(settings).map(([key, field]) => {
+            {/* Sorry TS :( */}
+            {Object.entries(fields).map((value) => {
+              const fieldKey = value[0] as keyof typeof fields;
+              const field = value[1];
               if (field.type === 'boolean') {
                 return (
                   <BooleanField
                     field={field}
-                    key={key}
-                    fieldKey={key as keyof TSettings}
-                    settings={settings}
+                    key={fieldKey}
+                    fieldKey={fieldKey as keyof TSettings}
+                    value={settings[fieldKey] as boolean}
                   />
                 );
               }
@@ -196,9 +187,9 @@ export function TopBar() {
                 return (
                   <SelectField
                     field={field}
-                    key={key}
-                    fieldKey={key as keyof TSettings}
-                    settings={settings}
+                    key={fieldKey}
+                    fieldKey={fieldKey as keyof TSettings}
+                    value={settings[fieldKey] as string}
                   />
                 );
               }

@@ -21,7 +21,7 @@ export function FPSPanel() {
   const { settings } = useContext(SettingsContext);
 
   useEffect(() => {
-    if (!settings.isCPUBurnEnabled.value) {
+    if (!settings.isCPUBurnEnabled) {
       return;
     }
     function burn() {
@@ -86,7 +86,7 @@ export function FPSPanel() {
 
   return typeof deferredValue === 'number' ? (
     <div className="flex flex-row items-center gap-1 overflow-hidden text-white">
-      {settings.isCPUBurnEnabled.value ? <span>🔥</span> : null}
+      {settings.isCPUBurnEnabled ? <span>🔥</span> : null}
       <span className="">FPS:</span>
       <span className="min-w-[2ch] font-bold">{deferredValue}</span>
     </div>

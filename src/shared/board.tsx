@@ -229,13 +229,13 @@ export function Board({ initial }: { initial: TBoard }) {
       }),
       autoScrollForElements({
         canScroll({ source }) {
-          if (!settings.isGlobalEnabled.value) {
+          if (!settings.isGlobalEnabled) {
             return false;
           }
 
           return isDraggingACard({ source }) || isDraggingAColumn({ source });
         },
-        getConfiguration: () => ({ maxScrollSpeed: settings.boardScrollSpeed.value }),
+        getConfiguration: () => ({ maxScrollSpeed: settings.boardScrollSpeed }),
         element,
       }),
     );
