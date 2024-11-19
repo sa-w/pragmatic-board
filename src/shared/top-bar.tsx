@@ -9,8 +9,9 @@ import { useCallback, useEffect, useState } from 'react';
 type TLink = { title: string; href: string };
 
 const links: TLink[] = [
-  { title: 'Board example', href: '/board' },
-  { title: 'List example', href: '/list' },
+  { title: 'Board', href: '/board' },
+  { title: 'One column', href: '/one-column' },
+  { title: 'Two columns', href: '/two-columns' },
 ];
 
 export function TopBar() {

@@ -19,14 +19,6 @@ function getInitialData(): TBoard {
 
   const columns: TColumn[] = [
     { id: 'column:a', title: 'Column A', cards: getCards({ amount: 60 }) },
-    { id: 'column:b', title: 'Column B', cards: getCards({ amount: 4 }) },
-    { id: 'column:c', title: 'Column C', cards: getCards({ amount: 4 }) },
-    { id: 'column:d', title: 'Column D', cards: getCards({ amount: 4 }) },
-    { id: 'column:e', title: 'Column E', cards: getCards({ amount: 4 }) },
-    { id: 'column:f', title: 'Column F', cards: getCards({ amount: 4 }) },
-    { id: 'column:g', title: 'Column G', cards: getCards({ amount: 4 }) },
-    { id: 'column:h', title: 'Column H', cards: getCards({ amount: 4 }) },
-    { id: 'column:i', title: 'Column I', cards: getCards({ amount: 4 }) },
   ];
 
   return {
@@ -35,5 +27,9 @@ function getInitialData(): TBoard {
 }
 
 export default function Page() {
-  return <Board initial={getInitialData()} />;
+  return (
+    <div className="flex h-full flex-row justify-center">
+      <Board initial={getInitialData()} />
+    </div>
+  );
 }
