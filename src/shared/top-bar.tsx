@@ -1,7 +1,7 @@
 'use client';
 
 import { bindAll } from 'bind-event-listener';
-import { Github, PanelTopClose, PanelTopOpen, SquareX, X } from 'lucide-react';
+import { PanelTopClose, PanelTopOpen } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
