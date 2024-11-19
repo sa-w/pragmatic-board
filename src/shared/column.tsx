@@ -6,7 +6,7 @@ import {
   ElementEventBasePayload,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { Copy, Ellipsis, Plus } from 'lucide-react';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState } from 'react';
 import invariant from 'tiny-invariant';
 
 import { autoScrollForElements } from '@/pdnd-auto-scroll/entry-point/element';
@@ -28,6 +28,7 @@ import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/elemen
 import { isSafari } from './is-safari';
 import { DragLocationHistory } from '@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types';
 import { isShallowEqual } from './is-shallow-equal';
+import { SettingsContext } from './settings';
 
 type TColumnState =
   | {
@@ -68,6 +69,7 @@ export function Column({ column }: { column: TColumn }) {
   const outerRef = useRef<HTMLDivElement | null>(null);
   const headerRef = useRef<HTMLDivElement | null>(null);
   const innerRef = useRef<HTMLDivElement | null>(null);
+  const { settings } = useContext(SettingsContext);
   const [state, setState] = useState<TColumnState>(idle);
 
   useEffect(() => {
@@ -169,12 +171,26 @@ export function Column({ column }: { column: TColumn }) {
         },
       }),
       autoScrollForElements({
-        canScroll: isDraggingACard,
+        canScroll({ source }) {
+          if (!settings.isGlobalEnabled.value) {
+            return false;
+          }
+
+          return isDraggingACard({ source });
+        },
+        getConfiguration: () => ({ maxScrollSpeed: settings.columnScrollSpeed.value }),
         element: scrollable,
       }),
       unsafeOverflowAutoScrollForElements({
         element: scrollable,
-        canScroll: isDraggingACard,
+        getConfiguration: () => ({ maxScrollSpeed: settings.columnScrollSpeed.value }),
+        canScroll({ source }) {
+          if (!settings.isGlobalEnabled.value) {
+            return false;
+          }
+
+          return isDraggingACard({ source });
+        },
         getOverflow() {
           return {
             fromTopEdge: {

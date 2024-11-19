@@ -7,6 +7,7 @@ import {
 } from '@atlaskit/pragmatic-drag-and-drop/types';
 
 import { clearEngagementHistory, clearUnusedEngagements } from './engagement-history';
+import { getSettingsFromWindow } from '@/shared/settings';
 
 type State<DragType extends AllDragTypes> =
   | {

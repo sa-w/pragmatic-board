@@ -1,6 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { autoScrollForElements } from '@/pdnd-auto-scroll/entry-point/element';
+import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { reorderWithEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/util/reorder-with-edge';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
+import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { reorder } from '@atlaskit/pragmatic-drag-and-drop/reorder';
+import { useContext, useEffect, useRef, useState } from 'react';
+import invariant from 'tiny-invariant';
+import { Column } from './column';
 import {
   isCardData,
   isCardDropTargetData,
@@ -8,22 +16,14 @@ import {
   isDraggingACard,
   isDraggingAColumn,
   TBoard,
-  TCard,
   TColumn,
 } from './data';
-import { Column } from './column';
-import invariant from 'tiny-invariant';
-import { autoScrollForElements } from '@/pdnd-auto-scroll/entry-point/element';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { reorder } from '@atlaskit/pragmatic-drag-and-drop/reorder';
-import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
-import { reorderWithEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/util/reorder-with-edge';
-import { bindAll } from 'bind-event-listener';
+import { SettingsContext } from './settings';
 
 export function Board({ initial }: { initial: TBoard }) {
   const [data, setData] = useState(initial);
   const scrollableRef = useRef<HTMLDivElement | null>(null);
+  const { settings } = useContext(SettingsContext);
 
   useEffect(() => {
     const element = scrollableRef.current;
@@ -228,14 +228,18 @@ export function Board({ initial }: { initial: TBoard }) {
         },
       }),
       autoScrollForElements({
-        canScroll: ({ source }) => isDraggingACard({ source }) || isDraggingAColumn({ source }),
-        getConfiguration: () => ({ maxScrollSpeed: 'fast' }),
+        canScroll({ source }) {
+          if (!settings.isGlobalEnabled.value) {
+            return false;
+          }
+
+          return isDraggingACard({ source }) || isDraggingAColumn({ source });
+        },
+        getConfiguration: () => ({ maxScrollSpeed: settings.boardScrollSpeed.value }),
         element,
       }),
     );
   }, [data]);
-
-  // TODO: Grab to scroll
 
   return (
     <div className="flex h-full flex-row gap-3 overflow-x-auto p-3" ref={scrollableRef}>

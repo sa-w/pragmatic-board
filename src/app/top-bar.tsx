@@ -1,10 +1,12 @@
 'use client';
 
+import { SettingsContext } from '@/shared/settings';
 import { bindAll } from 'bind-event-listener';
 import { PanelTopClose, PanelTopOpen } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { use, useCallback, useEffect, useState } from 'react';
+import { use, useCallback, useContext, useEffect, useState } from 'react';
+import { FPSPanel } from './fps-panel';
 
 type TLink = { title: string; href: string };
 
@@ -17,6 +19,7 @@ const links: TLink[] = [
 export function TopBar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState<boolean>(true);
+  const { settings } = useContext(SettingsContext);
 
   const toggle = useCallback(() => setIsOpen((current) => !current), []);
 
@@ -48,7 +51,8 @@ export function TopBar() {
           ))}
         </header>
       ) : null}
-      <div className="fixed right-2 top-0 isolate z-[1] flex h-12 flex-col justify-center">
+      <div className="fixed right-2 top-0 isolate z-[1] flex h-12 flex-row items-center justify-center">
+        {settings.isFPSPanelEnabled.value ? <FPSPanel /> : null}
         <button
           type="button"
           className="rounded p-2 text-white hover:bg-sky-700 active:bg-sky-600"

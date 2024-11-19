@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { TopBar } from './top-bar';
+import { SettingsContextProvider } from '@/shared/settings';
 
 export const metadata: Metadata = {
   title: 'Auto scroll playground',
@@ -15,13 +16,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex h-screen flex-col">
-        <TopBar />
-        {/* position: absolute needed for max-height:100% to be respected internally */}
-        <div className="relative flex-grow">
-          <div className="absolute inset-0">
-            <main className="h-full bg-sky-700">{children}</main>
+        <SettingsContextProvider>
+          <TopBar />
+          {/* position: absolute needed for max-height:100% to be respected internally */}
+          <div className="relative flex-grow">
+            <div className="absolute inset-0">
+              <main className="h-full bg-sky-700">{children}</main>
+            </div>
           </div>
-        </div>
+        </SettingsContextProvider>
       </body>
     </html>
   );

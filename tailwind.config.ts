@@ -3,13 +3,6 @@ import type { Config } from 'tailwindcss';
 const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   plugins: [],
-  theme: {
-    extend: {
-      colors: {
-        // Trello blue
-        background: 'rgb(0, 121, 191)',
-      },
-    },
-  },
+  theme: {},
 };
 export default config;

@@ -1,6 +1,7 @@
 'use client';
 
-import { useDeferredValue, useEffect, useState } from 'react';
+import { SettingsContext } from '@/shared/settings';
+import { useContext, useDeferredValue, useEffect, useState } from 'react';
 
 type State =
   | {
@@ -14,9 +15,29 @@ type State =
       fpsValues: number[];
     };
 
-function FPSMeter() {
+export function FPSPanel() {
   const [displayValue, setDisplayValue] = useState<number | null>(null);
   const deferredValue = useDeferredValue(displayValue);
+  const { settings } = useContext(SettingsContext);
+
+  useEffect(() => {
+    if (!settings.isCPUBurnEnabled) {
+      return;
+    }
+    function burn() {
+      console.log('hurting CPU');
+      const start = Date.now();
+      while (Date.now() - start < 50) {
+        // block CPU
+      }
+    }
+
+    const timerId = setInterval(burn);
+
+    return function cleanup() {
+      clearInterval(timerId);
+    };
+  });
 
   useEffect(() => {
     let state: State = {
@@ -63,43 +84,11 @@ function FPSMeter() {
     };
   }, []);
 
-  return <div>FPS: {deferredValue ?? 'pending'}</div>;
-}
-
-function CPUBlocker() {
-  useEffect(() => {
-    function block() {
-      console.log('hurting CPU');
-      const start = Date.now();
-      while (Date.now() - start < 50) {
-        // block CPU
-      }
-    }
-
-    const timerId = setInterval(block);
-
-    return function cleanup() {
-      clearInterval(timerId);
-    };
-  }, []);
-
-  return null;
-}
-
-export function Settings() {
-  return (
-    <div className="fixed right-0 top-0 flex flex-col gap-2 rounded-bl bg-slate-400 p-2">
-      <form className="">
-        <fieldset>
-          <legend>Settings</legend>
-          <label className="flex flex-row gap-1">
-            <input type="checkbox" name="is-enabled" />
-            <label htmlFor="is-enabled">Is custom auto scrolling enabled?</label>
-          </label>
-        </fieldset>
-      </form>
-      <FPSMeter />
-      {/* <CPUBlocker /> */}
+  return typeof deferredValue === 'number' ? (
+    <div className="flex flex-row items-center gap-1 overflow-hidden text-white">
+      {settings.isCPUBurnEnabled.value ? <span>🔥</span> : null}
+      <span className="">FPS:</span>
+      <span className="w-[3ch] font-bold">{deferredValue}</span>
     </div>
-  );
+  ) : null;
 }
