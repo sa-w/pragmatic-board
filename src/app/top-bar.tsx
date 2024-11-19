@@ -1,12 +1,13 @@
 'use client';
 
-import { SettingsContext } from '@/shared/settings';
+import { SettingsContext, TBooleanField, TSelectField } from '@/shared/settings';
 import { bindAll } from 'bind-event-listener';
-import { PanelTopClose, PanelTopOpen, Settings } from 'lucide-react';
+import { ChevronDown, PanelTopClose, PanelTopOpen, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { use, useCallback, useContext, useEffect, useState } from 'react';
+import { use, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { FPSPanel } from './fps-panel';
+import invariant from 'tiny-invariant';
 
 type TLink = { title: string; href: string };
 
@@ -16,30 +17,91 @@ const links: TLink[] = [
   { title: 'Two columns', href: '/two-columns' },
 ];
 
+function BooleanField({ field }: { field: TBooleanField }) {
+  return (
+    <label className="flex flex-row gap-2 rounded border p-2">
+      <div className="flex flex-col">
+        <span className="font-bold">{field.title}</span>
+        <span className="text-balance text-sm">{field.description}</span>
+      </div>
+      <input type="checkbox" checked={field.value} />
+    </label>
+  );
+}
+
+function SelectField({ field }: { field: TSelectField<any> }) {
+  return (
+    <div className="flex flex-col gap-2 rounded border p-2">
+      <span className="font-bold">{field.title}</span>
+      <span className="text-balance text-sm">{field.description}</span>
+      <select className="rounded p-2">
+        {field.options.map((option) => (
+          <option selected={field.value === option} key={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 export function TopBar() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [isTopBarExpanded, setIsTopBarExpanded] = useState<boolean>(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const settingsDialogRef = useRef<HTMLDivElement | null>(null);
+  const settingsTriggerRef = useRef<HTMLButtonElement | null>(null);
   const { settings } = useContext(SettingsContext);
-
-  const toggle = useCallback(() => setIsOpen((current) => !current), []);
 
   useEffect(() => {
     return bindAll(window, [
       {
         type: 'keydown',
         listener(event) {
-          if (event.key === 'Escape') {
-            toggle();
+          if (event.key !== 'Escape') {
+            return;
           }
+
+          if (isSettingsOpen) {
+            setIsSettingsOpen(false);
+            return;
+          }
+          setIsTopBarExpanded((current) => !current);
+        },
+      },
+      {
+        type: 'click',
+        listener(event) {
+          if (!(event.target instanceof Element)) {
+            return;
+          }
+
+          if (!isSettingsOpen) {
+            return;
+          }
+
+          const dialog = settingsDialogRef.current;
+          const trigger = settingsTriggerRef.current;
+          if (!dialog || !trigger) {
+            return;
+          }
+          if (trigger.contains(event.target)) {
+            return;
+          }
+
+          if (dialog.contains(event.target)) {
+            return;
+          }
+
+          setIsSettingsOpen(false);
         },
       },
     ]);
-  }, [toggle]);
+  }, [isTopBarExpanded, isSettingsOpen]);
 
   return (
     <>
-      {isOpen ? (
+      {isTopBarExpanded ? (
         <header className="flex h-12 flex-row items-center gap-3 border-b bg-sky-800 px-3 leading-4 text-white">
           {links.map((link) => (
             <Link
@@ -57,13 +119,14 @@ export function TopBar() {
         <button
           type="button"
           className="rounded p-2 text-white hover:bg-sky-700 active:bg-sky-600"
-          onClick={toggle}
+          onClick={() => setIsTopBarExpanded((current) => !current)}
           aria-label="toggle top bar visibility"
         >
-          {isOpen ? <PanelTopClose size={16} /> : <PanelTopOpen size={16} />}
+          {isTopBarExpanded ? <PanelTopClose size={16} /> : <PanelTopOpen size={16} />}
         </button>
         <button
           type="button"
+          ref={settingsTriggerRef}
           className="rounded p-2 text-white hover:bg-sky-700 active:bg-sky-600"
           onClick={() => setIsSettingsOpen((current) => !current)}
           aria-label="toggle top bar visibility"
@@ -71,8 +134,19 @@ export function TopBar() {
           <Settings size={16} />
         </button>
         {isSettingsOpen ? (
-          <div className="absolute right-0 top-11 w-72 rounded bg-slate-100 p-2">
-            Settings go here
+          <div
+            className="absolute right-0 top-11 flex w-80 flex-col gap-2 rounded bg-slate-100 p-2"
+            ref={settingsDialogRef}
+          >
+            {Object.entries(settings).map(([key, field]) => {
+              if (field.type === 'boolean') {
+                return <BooleanField field={field} key={key} />;
+              }
+              if (field.type === 'select') {
+                return <SelectField field={field} key={key} />;
+              }
+              return null;
+            })}
           </div>
         ) : null}
       </div>

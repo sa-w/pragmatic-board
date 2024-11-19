@@ -2,14 +2,18 @@
 
 import { createContext, ReactElement, ReactNode, useMemo, useState } from 'react';
 
-type TSelectField<T> = {
+export type TSelectField<T> = {
   type: 'select';
+  title: string;
+  description: string;
   options: T[];
   value: T;
 };
 
-type TBooleanField = {
+export type TBooleanField = {
   type: 'boolean';
+  title: string;
+  description: string;
   value: boolean;
 };
 
@@ -24,13 +28,51 @@ type TSettings = {
 };
 
 const defaultSettings: TSettings = {
-  isGlobalEnabled: { type: 'boolean', value: true },
-  isFPSPanelEnabled: { type: 'boolean', value: false },
-  isCPUBurnEnabled: { type: 'boolean', value: false },
-  isDistanceDampeningEnabled: { type: 'boolean', value: true },
-  isTimeDampeningEnabled: { type: 'boolean', value: true },
-  boardScrollSpeed: { type: 'select', options: ['fast', 'standard'], value: 'fast' },
-  columnScrollSpeed: { type: 'select', options: ['fast', 'standard'], value: 'standard' },
+  isGlobalEnabled: {
+    type: 'boolean',
+    title: 'Auto scrolling',
+    description: 'Whether our custom auto scroller should be enabled',
+    value: true,
+  },
+
+  isDistanceDampeningEnabled: {
+    type: 'boolean',
+    title: 'Distance dampening',
+    description: 'Increase the max scroll speed as you get closer to an edge',
+    value: true,
+  },
+  isTimeDampeningEnabled: {
+    type: 'boolean',
+    title: 'Time dampening',
+    description: 'Increase the max scroll speed the longer you are on an element',
+    value: true,
+  },
+  boardScrollSpeed: {
+    type: 'select',
+    title: 'Board auto scroll speed',
+    description: 'What should the max horizontal scroll speed the board be?',
+    options: ['fast', 'standard'],
+    value: 'fast',
+  },
+  columnScrollSpeed: {
+    type: 'select',
+    title: 'Column auto scroll speed',
+    description: 'What should the max vertical scroll speed for columns be?',
+    options: ['fast', 'standard'],
+    value: 'standard',
+  },
+  isFPSPanelEnabled: {
+    type: 'boolean',
+    title: 'FPS Panel',
+    description: 'Display a panel with Frame Per Second (FPS) information',
+    value: false,
+  },
+  isCPUBurnEnabled: {
+    type: 'boolean',
+    title: 'Drop FPS 🔥',
+    description: 'Start heavy process that will cause the frame rate on the page to drop',
+    value: false,
+  },
 };
 
 export type TSettingsContext = {
