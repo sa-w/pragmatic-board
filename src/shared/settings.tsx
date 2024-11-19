@@ -67,7 +67,9 @@ type GetFieldValues<TRecord extends Record<string, TBooleanField | TSelectField>
       : never;
 };
 
-export type TSettings = GetFieldValues<typeof fields>;
+export type TFields = typeof fields;
+
+export type TSettings = GetFieldValues<TFields>;
 
 const defaultSettings: TSettings = {
   isGlobalEnabled: true,
@@ -80,7 +82,7 @@ const defaultSettings: TSettings = {
 };
 
 export type TSettingsContext = {
-  fields: typeof fields;
+  fields: TFields;
   settings: TSettings;
   update: (args: Partial<TSettings>) => void;
 };

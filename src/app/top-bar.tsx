@@ -3,6 +3,7 @@
 import {
   SettingsContext,
   TBooleanField,
+  TFields,
   TSelectField,
   TSettings,
   TupleToUnion,
@@ -22,16 +23,22 @@ const links: TLink[] = [
   { title: 'Two columns', href: '/two-columns' },
 ];
 
-function BooleanField({
-  field,
+type TBooleanFields = {
+  [TKey in keyof TFields]: TFields[TKey]['type'] extends 'boolean' ? TFields[TKey] : never;
+};
+
+function BooleanField<TFieldKey extends keyof TBooleanFields>({
   fieldKey,
+  fields,
   value,
 }: {
-  field: TBooleanField;
-  fieldKey: keyof TSettings;
+  fields: TFields;
+  fieldKey: TFieldKey;
+  // TODO: better?
   value: boolean;
 }) {
   const { update } = useContext(SettingsContext);
+  const field = fields[fieldKey];
   return (
     <label className="flex flex-row gap-2 rounded border p-2">
       <div className="flex flex-col">
@@ -176,9 +183,9 @@ export function TopBar() {
               if (field.type === 'boolean') {
                 return (
                   <BooleanField
-                    field={field}
+                    fields={fields}
                     key={fieldKey}
-                    fieldKey={fieldKey as keyof TSettings}
+                    fieldKey={fieldKey}
                     value={settings[fieldKey] as boolean}
                   />
                 );
