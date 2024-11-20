@@ -98,10 +98,14 @@ export function FPSPanel() {
   }, []);
 
   return typeof deferredValue === 'number' ? (
-    <div className="flex flex-row items-center gap-1 overflow-hidden text-white">
-      {settings.isCPUBurnEnabled ? <span>🔥</span> : null}
-      <span className="">FPS:</span>
-      <span className="min-w-[2ch] font-bold">{deferredValue}</span>
+    <div
+      className={`${settings.isFilming ? 'fixed left-[50%] top-12 translate-x-[-50%] text-lg' : ''}`}
+    >
+      <div className="flex flex-row items-center gap-1 overflow-hidden text-white">
+        {settings.isCPUBurnEnabled ? <span>🔥</span> : null}
+        <span className="">FPS:</span>
+        <span className="min-w-[2ch] font-bold">{deferredValue}</span>
+      </div>
     </div>
   ) : null;
 }

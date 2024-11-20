@@ -19,6 +19,7 @@ import {
   TColumn,
 } from './data';
 import { SettingsContext } from './settings-context';
+import { unsafeOverflowAutoScrollForElements } from '@/pdnd-auto-scroll/entry-point/unsafe-overflow/element';
 
 export function Board({ initial }: { initial: TBoard }) {
   const [data, setData] = useState(initial);
@@ -238,14 +239,44 @@ export function Board({ initial }: { initial: TBoard }) {
         getConfiguration: () => ({ maxScrollSpeed: settings.boardScrollSpeed }),
         element,
       }),
+      unsafeOverflowAutoScrollForElements({
+        element,
+        getConfiguration: () => ({ maxScrollSpeed: settings.boardScrollSpeed }),
+        canScroll({ source }) {
+          if (!settings.isGlobalEnabled) {
+            return false;
+          }
+
+          return isDraggingACard({ source }) || isDraggingAColumn({ source });
+        },
+        getOverflow() {
+          return {
+            fromLeftEdge: {
+              top: 1000,
+              left: 1000,
+              bottom: 1000,
+            },
+            fromRightEdge: {
+              top: 1000,
+              right: 1000,
+              bottom: 1000,
+            },
+          };
+        },
+      }),
     );
   }, [data, settings]);
 
   return (
-    <div className="flex h-full flex-row gap-3 overflow-x-auto p-3" ref={scrollableRef}>
-      {data.columns.map((column) => (
-        <Column key={column.id} column={column} />
-      ))}
+    <div className={`flex h-full flex-col ${settings.isFilming ? 'px-36 py-20' : ''}`}>
+      <div
+        className="flex flex-row gap-3 overflow-x-auto p-3 [scrollbar-color:theme(colors.sky.600)_theme(colors.sky.800)] [scrollbar-width:thin]"
+        ref={scrollableRef}
+      >
+        {data.columns.map((column) => (
+          <Column key={column.id} column={column} />
+        ))}
+      </div>
     </div>
   );
 }

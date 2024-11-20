@@ -15,6 +15,11 @@ export type TBooleanField = {
 };
 
 export const fields = {
+  isFilming: {
+    type: 'boolean',
+    title: 'Film mode',
+    description: 'Prepare UI for filming',
+  },
   isFPSPanelEnabled: {
     type: 'boolean',
     title: 'FPS Panel',

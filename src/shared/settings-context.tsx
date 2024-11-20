@@ -10,6 +10,7 @@ export type TSettingsContext = {
 };
 
 const defaultSettings: TSettings = {
+  isFilming: true,
   isGlobalEnabled: true,
   isDistanceDampeningEnabled: true,
   isTimeDampeningEnabled: true,

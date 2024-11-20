@@ -30,7 +30,7 @@ function BooleanField<TFieldKey extends keyof TBooleanFields>({
   const field = fields[fieldKey];
   return (
     <label className="flex flex-row gap-2 rounded border p-2">
-      <div className="flex flex-col">
+      <div className="flex flex-grow flex-col">
         <span className="font-bold">{field.title}</span>
         <span className="text-balance text-sm">{field.description}</span>
       </div>
