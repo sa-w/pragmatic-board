@@ -28,7 +28,7 @@ import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/elemen
 import { isSafari } from './is-safari';
 import { DragLocationHistory } from '@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types';
 import { isShallowEqual } from './is-shallow-equal';
-import { SettingsContext } from './settings';
+import { SettingsContext } from './settings-context';
 
 type TColumnState =
   | {

@@ -18,7 +18,7 @@ import {
   TBoard,
   TColumn,
 } from './data';
-import { SettingsContext } from './settings';
+import { SettingsContext } from './settings-context';
 
 export function Board({ initial }: { initial: TBoard }) {
   const [data, setData] = useState(initial);

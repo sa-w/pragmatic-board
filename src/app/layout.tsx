@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { TopBar } from './top-bar';
-import { SettingsContextProvider } from '@/shared/settings';
+import { SettingsContextProvider } from '@/shared/settings-context';
 
 export const metadata: Metadata = {
   title: 'Auto scroll playground',

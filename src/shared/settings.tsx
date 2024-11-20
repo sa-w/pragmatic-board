@@ -16,7 +16,7 @@ export type TBooleanField = {
   // children?: Record<string, TBooleanField | TSelectField>
 };
 
-const fields = {
+export const fields = {
   isGlobalEnabled: {
     type: 'boolean',
     title: 'Auto scrolling',
@@ -70,42 +70,3 @@ type GetFieldValues<TRecord extends Record<string, TBooleanField | TSelectField>
 export type TFields = typeof fields;
 
 export type TSettings = GetFieldValues<TFields>;
-
-const defaultSettings: TSettings = {
-  isGlobalEnabled: true,
-  isDistanceDampeningEnabled: true,
-  isTimeDampeningEnabled: true,
-  boardScrollSpeed: 'fast',
-  columnScrollSpeed: 'standard',
-  isFPSPanelEnabled: false,
-  isCPUBurnEnabled: false,
-};
-
-export type TSettingsContext = {
-  fields: TFields;
-  settings: TSettings;
-  update: (args: Partial<TSettings>) => void;
-};
-
-export const SettingsContext = createContext<TSettingsContext>({
-  fields,
-  settings: defaultSettings,
-  update: () => {},
-});
-
-export function SettingsContextProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<TSettings>(defaultSettings);
-
-  const value = useMemo(() => {
-    return {
-      fields,
-      settings,
-      update: (partial: Partial<TSettings>) => {
-        const updated = { ...settings, ...partial };
-        setSettings(updated);
-      },
-    };
-  }, [settings]);
-
-  return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
-}
