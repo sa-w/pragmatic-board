@@ -1,13 +1,8 @@
 'use client';
 
-import { TBooleanField, TFields, TSelectField, TSettings, TupleToUnion } from '@/shared/settings';
+import { TFields, TSelectField, TSettings } from '@/shared/settings';
 import { SettingsContext } from '@/shared/settings-context';
-import { bindAll } from 'bind-event-listener';
-import { PanelTopClose, PanelTopOpen, Settings } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { forwardRef, useContext, useEffect, useRef, useState } from 'react';
-import { FPSPanel } from './fps-panel';
+import { forwardRef, useContext } from 'react';
 
 type TLink = { title: string; href: string };
 

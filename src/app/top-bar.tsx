@@ -1,6 +1,5 @@
 'use client';
 
-import { TBooleanField, TFields, TSelectField, TSettings, TupleToUnion } from '@/shared/settings';
 import { SettingsContext } from '@/shared/settings-context';
 import { bindAll } from 'bind-event-listener';
 import { PanelTopClose, PanelTopOpen, Settings } from 'lucide-react';
