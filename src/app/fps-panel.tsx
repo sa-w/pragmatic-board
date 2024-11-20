@@ -1,6 +1,6 @@
 'use client';
 
-import { SettingsContext } from '@/shared/settings';
+import { SettingsContext } from '@/shared/settings-context';
 import { useContext, useDeferredValue, useEffect, useState } from 'react';
 
 type State =

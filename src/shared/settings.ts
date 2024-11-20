@@ -1,7 +1,5 @@
 'use client';
 
-import { createContext, ReactElement, ReactNode, useMemo, useState } from 'react';
-
 export type TSelectField<T = string> = {
   type: 'select';
   title: string;
@@ -17,6 +15,16 @@ export type TBooleanField = {
 };
 
 export const fields = {
+  isFPSPanelEnabled: {
+    type: 'boolean',
+    title: 'FPS Panel',
+    description: 'Display a panel with Frame Per Second (FPS) information',
+  },
+  isCPUBurnEnabled: {
+    type: 'boolean',
+    title: 'Drop FPS 🔥',
+    description: 'Start heavy process that will cause the frame rate on the page to drop',
+  },
   isGlobalEnabled: {
     type: 'boolean',
     title: 'Auto scrolling',
@@ -43,16 +51,6 @@ export const fields = {
     title: 'Column auto scroll speed',
     description: 'What should the max vertical scroll speed for columns be?',
     options: ['fast', 'standard'],
-  },
-  isFPSPanelEnabled: {
-    type: 'boolean',
-    title: 'FPS Panel',
-    description: 'Display a panel with Frame Per Second (FPS) information',
-  },
-  isCPUBurnEnabled: {
-    type: 'boolean',
-    title: 'Drop FPS 🔥',
-    description: 'Start heavy process that will cause the frame rate on the page to drop',
   },
 } as const satisfies Record<string, TBooleanField | TSelectField>;
 
