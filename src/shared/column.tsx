@@ -66,14 +66,14 @@ const CardList = memo(function CardList({ column }: { column: TColumn }) {
 
 export function Column({ column }: { column: TColumn }) {
   const scrollableRef = useRef<HTMLDivElement | null>(null);
-  const outerRef = useRef<HTMLDivElement | null>(null);
+  const outerFullHeightRef = useRef<HTMLDivElement | null>(null);
   const headerRef = useRef<HTMLDivElement | null>(null);
   const innerRef = useRef<HTMLDivElement | null>(null);
   const { settings } = useContext(SettingsContext);
   const [state, setState] = useState<TColumnState>(idle);
 
   useEffect(() => {
-    const outer = outerRef.current;
+    const outer = outerFullHeightRef.current;
     const scrollable = scrollableRef.current;
     const header = headerRef.current;
     const inner = innerRef.current;
@@ -210,7 +210,7 @@ export function Column({ column }: { column: TColumn }) {
   }, [column, settings]);
 
   return (
-    <div className="flex w-72 flex-shrink-0 select-none flex-col bg-red-100" ref={outerRef}>
+    <div className="flex w-72 flex-shrink-0 select-none flex-col" ref={outerFullHeightRef}>
       <div
         className={`flex max-h-full flex-col rounded-lg bg-slate-800 text-neutral-50 ${stateStyles[state.type]}`}
         ref={innerRef}
