@@ -69,13 +69,20 @@ function SelectField({
 }
 
 export const SettingsDialog = forwardRef<HTMLDivElement>(function SettingsDialog(props, ref) {
-  const { settings, fields } = useContext(SettingsContext);
+  const { settings, fields, reset } = useContext(SettingsContext);
 
   return (
     <div
       className="absolute right-0 top-11 flex w-80 select-none flex-col gap-2 rounded bg-slate-100 p-2"
       ref={ref}
     >
+      <button
+        type="button"
+        className="rounded bg-sky-200 p-2 hover:bg-sky-300 active:bg-sky-100"
+        onClick={reset}
+      >
+        Reset defaults
+      </button>
       {/* Sorry TS :( */}
       {Object.entries(fields).map((value) => {
         const fieldKey = value[0] as keyof typeof fields;

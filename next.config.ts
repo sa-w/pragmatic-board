@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  devIndicators: {
+    // Disable "static route" dev indicator
+    appIsrStatus: false,
+  },
 };
 
 export default nextConfig;
