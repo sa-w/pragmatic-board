@@ -12,13 +12,14 @@ export type TSettingsContext = {
 
 const defaultSettings: TSettings = {
   isFilming: true,
-  isGlobalEnabled: true,
+  isOverElementAutoScrollEnabled: true,
   isDistanceDampeningEnabled: true,
   isTimeDampeningEnabled: true,
   boardScrollSpeed: 'fast',
   columnScrollSpeed: 'standard',
   isFPSPanelEnabled: false,
   isCPUBurnEnabled: false,
+  isOverflowScrollingEnabled: true,
 };
 
 export const SettingsContext = createContext<TSettingsContext>({

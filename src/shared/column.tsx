@@ -172,7 +172,7 @@ export function Column({ column }: { column: TColumn }) {
       }),
       autoScrollForElements({
         canScroll({ source }) {
-          if (!settings.isGlobalEnabled) {
+          if (!settings.isOverElementAutoScrollEnabled) {
             return false;
           }
 
@@ -185,7 +185,11 @@ export function Column({ column }: { column: TColumn }) {
         element: scrollable,
         getConfiguration: () => ({ maxScrollSpeed: settings.columnScrollSpeed }),
         canScroll({ source }) {
-          if (!settings.isGlobalEnabled) {
+          if (!settings.isOverElementAutoScrollEnabled) {
+            return false;
+          }
+
+          if (!settings.isOverflowScrollingEnabled) {
             return false;
           }
 

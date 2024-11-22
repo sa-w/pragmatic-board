@@ -30,10 +30,15 @@ export const fields = {
     title: 'Drop FPS 🔥',
     description: 'Start heavy process that will cause the frame rate on the page to drop',
   },
-  isGlobalEnabled: {
+  isOverElementAutoScrollEnabled: {
     type: 'boolean',
-    title: 'Auto scrolling',
-    description: 'Whether our custom auto scroller should be enabled',
+    title: 'Over element auto scrolling',
+    description: 'Should elements automatically scroll when over them',
+  },
+  isOverflowScrollingEnabled: {
+    type: 'boolean',
+    title: 'Overflow scrolling',
+    description: 'Should overflow scrolling be enabled',
   },
   isDistanceDampeningEnabled: {
     type: 'boolean',

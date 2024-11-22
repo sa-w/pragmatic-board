@@ -230,7 +230,7 @@ export function Board({ initial }: { initial: TBoard }) {
       }),
       autoScrollForElements({
         canScroll({ source }) {
-          if (!settings.isGlobalEnabled) {
+          if (!settings.isOverElementAutoScrollEnabled) {
             return false;
           }
 
@@ -243,7 +243,11 @@ export function Board({ initial }: { initial: TBoard }) {
         element,
         getConfiguration: () => ({ maxScrollSpeed: settings.boardScrollSpeed }),
         canScroll({ source }) {
-          if (!settings.isGlobalEnabled) {
+          if (!settings.isOverElementAutoScrollEnabled) {
+            return false;
+          }
+
+          if (!settings.isOverflowScrollingEnabled) {
             return false;
           }
 
