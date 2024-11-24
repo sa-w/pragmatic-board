@@ -99,7 +99,7 @@ export function FPSPanel() {
 
   return typeof deferredValue === 'number' ? (
     <div
-      className={`${settings.isFilming ? 'fixed left-[50%] top-12 translate-x-[-50%] text-lg' : ''}`}
+      className={`${settings.isFilming ? 'fixed left-[50%] top-10 translate-x-[-50%] text-3xl' : ''}`}
     >
       <div className="flex flex-row items-center gap-1 overflow-hidden text-white">
         {settings.isCPUBurnEnabled ? <span>🔥</span> : null}

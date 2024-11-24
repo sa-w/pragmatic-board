@@ -7,13 +7,15 @@ const baseConfig = {
     bottom: 0.25,
     left: 0.25,
   },
+  // TODO: rename? inaccurate name?
   maxScrollAtPercentageRemainingOfHitbox: {
     top: 0.5,
     right: 0.5,
     bottom: 0.5,
     left: 0.5,
   },
-  timeDampeningDurationMs: 300,
+  // TODO: 300 - 400ms
+  timeDampeningDurationMs: 400,
   // Too big and it's too easy to trigger auto scrolling
   // Too small and it's too hard 😅
   maxMainAxisHitboxSize: 180,
