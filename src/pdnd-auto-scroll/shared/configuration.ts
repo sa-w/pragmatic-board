@@ -16,9 +16,10 @@ const baseConfig = {
   },
   // TODO: 300 - 400ms
   timeDampeningDurationMs: 400,
+  // TODO: I think 220 feels better here.
   // Too big and it's too easy to trigger auto scrolling
   // Too small and it's too hard 😅
-  maxMainAxisHitboxSize: 180,
+  maxMainAxisHitboxSize: 220,
 };
 
 /** What the max scroll should be per second. Using "per second" rather than "per frame"
