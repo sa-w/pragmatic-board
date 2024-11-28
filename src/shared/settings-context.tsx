@@ -11,7 +11,7 @@ export type TSettingsContext = {
 };
 
 const defaultSettings: TSettings = {
-  isSpacious: false,
+  isBoardMoreObvious: false,
   isOverElementAutoScrollEnabled: true,
   boardScrollSpeed: 'fast',
   columnScrollSpeed: 'standard',

@@ -78,7 +78,7 @@ export const SettingsDialog = forwardRef<HTMLDivElement>(function SettingsDialog
     >
       <button
         type="button"
-        className="rounded bg-sky-200 p-2 hover:bg-sky-300 active:bg-sky-100"
+        className="rounded bg-orange-200 p-2 hover:bg-orange-300 active:bg-orange-100"
         onClick={reset}
       >
         Reset defaults

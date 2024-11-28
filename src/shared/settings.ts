@@ -15,10 +15,11 @@ export type TBooleanField = {
 };
 
 export const fields = {
-  isSpacious: {
+  isBoardMoreObvious: {
     type: 'boolean',
-    title: 'Spacious',
-    description: 'Add extra spacing to the board to better show off overflow scrolling',
+    title: 'Make board more obvious',
+    description:
+      'Add extra spacing and borders to the board scroll container to make it easier to see and play with',
   },
   isFPSPanelEnabled: {
     type: 'boolean',
