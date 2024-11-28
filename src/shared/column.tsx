@@ -29,6 +29,7 @@ import { isSafari } from './is-safari';
 import { DragLocationHistory } from '@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types';
 import { isShallowEqual } from './is-shallow-equal';
 import { SettingsContext } from './settings-context';
+import { blockBoardPanningAttr } from './data-attributes';
 
 type TColumnState =
   | {
@@ -218,6 +219,7 @@ export function Column({ column }: { column: TColumn }) {
       <div
         className={`flex max-h-full flex-col rounded-lg bg-slate-800 text-neutral-50 ${stateStyles[state.type]}`}
         ref={innerRef}
+        {...{ [blockBoardPanningAttr]: true }}
       >
         {/* Extra wrapping element to make it easy to toggle visibility of content when a column is dragging over */}
         <div

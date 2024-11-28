@@ -20,6 +20,9 @@ import {
 } from './data';
 import { SettingsContext } from './settings-context';
 import { unsafeOverflowAutoScrollForElements } from '@/pdnd-auto-scroll/entry-point/unsafe-overflow/element';
+import { bindAll } from 'bind-event-listener';
+import { blockBoardPanningAttr } from './data-attributes';
+import { CleanupFn } from '@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types';
 
 export function Board({ initial }: { initial: TBoard }) {
   const [data, setData] = useState(initial);
@@ -270,6 +273,72 @@ export function Board({ initial }: { initial: TBoard }) {
       }),
     );
   }, [data, settings]);
+
+  // Panning the board
+  useEffect(() => {
+    let cleanupActive: CleanupFn | null = null;
+    const scrollable = scrollableRef.current;
+    invariant(scrollable);
+
+    function begin({ startX }: { startX: number }) {
+      let lastX = startX;
+
+      const cleanupEvents = bindAll(
+        window,
+        [
+          {
+            type: 'pointermove',
+            listener(event) {
+              const currentX = event.clientX;
+              const diffX = lastX - currentX;
+
+              lastX = currentX;
+              scrollable?.scrollBy({ left: diffX });
+            },
+          },
+          // stop panning if we see any of these events
+          ...(
+            [
+              'pointercancel',
+              'pointerup',
+              'pointerdown',
+              'keydown',
+              'resize',
+              'click',
+              'visibilitychange',
+            ] as const
+          ).map((eventName) => ({ type: eventName, listener: () => cleanupEvents() })),
+        ],
+        // need to make sure we are not after the "pointerdown" on the scrollable
+        // Also this is helpful to make sure we always hear about events from this point
+        { capture: true },
+      );
+
+      cleanupActive = cleanupEvents;
+    }
+
+    const cleanupStart = bindAll(scrollable, [
+      {
+        type: 'pointerdown',
+        listener(event) {
+          if (!(event.target instanceof HTMLElement)) {
+            return;
+          }
+          // ignore interactive elements
+          if (event.target.closest(`[${blockBoardPanningAttr}]`)) {
+            return;
+          }
+
+          begin({ startX: event.clientX });
+        },
+      },
+    ]);
+
+    return function cleanupAll() {
+      cleanupStart();
+      cleanupActive?.();
+    };
+  }, []);
 
   return (
     <div className={`flex h-full flex-col ${settings.isFilming ? 'px-36 py-20' : ''}`}>

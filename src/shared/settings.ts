@@ -40,16 +40,6 @@ export const fields = {
     title: 'Overflow scrolling',
     description: 'Should overflow scrolling be enabled',
   },
-  isDistanceDampeningEnabled: {
-    type: 'boolean',
-    title: 'Distance dampening',
-    description: 'Increase the max scroll speed as you get closer to an edge',
-  },
-  isTimeDampeningEnabled: {
-    type: 'boolean',
-    title: 'Time dampening',
-    description: 'Increase the max scroll speed the longer you are on an element',
-  },
   boardScrollSpeed: {
     type: 'select',
     title: 'Board auto scroll speed',
