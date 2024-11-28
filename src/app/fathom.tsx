@@ -2,9 +2,9 @@
 
 import { load, trackPageview } from 'fathom-client';
 import { usePathname } from 'next/navigation';
-import { Suspense, useEffect } from 'react';
+import { useEffect } from 'react';
 
-function TrackPageView() {
+export function Fathom() {
   const pathname = usePathname();
 
   // Load the Fathom script on mount
@@ -33,12 +33,4 @@ function TrackPageView() {
   }, [pathname]);
 
   return null;
-}
-
-export default function Fathom() {
-  return (
-    <Suspense fallback={null}>
-      <TrackPageView />
-    </Suspense>
-  );
 }
