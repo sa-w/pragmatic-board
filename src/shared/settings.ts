@@ -55,6 +55,7 @@ export const fields = {
   },
 } as const satisfies Record<string, TBooleanField | TSelectField>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TupleToUnion<T extends any[]> = T[number];
 
 type GetFieldValues<TRecord extends Record<string, TBooleanField | TSelectField>> = {

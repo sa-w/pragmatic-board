@@ -50,7 +50,7 @@ function SelectField({
       <select
         className="rounded p-2"
         value={value}
-        onChange={(event) => update({ [fieldKey]: event.target.value as any })}
+        onChange={(event) => update({ [fieldKey]: event.target.value })}
       >
         {field.options.map((option) => (
           <option key={option} value={option}>

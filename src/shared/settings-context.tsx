@@ -1,7 +1,7 @@
 'use client';
 
-import { createContext, ReactNode, useEffect, useMemo, useState } from 'react';
-import { TFields, TSettings, fields } from './settings';
+import { createContext, ReactNode, useMemo, useState } from 'react';
+import { fields, TFields, TSettings } from './settings';
 
 export type TSettingsContext = {
   fields: TFields;

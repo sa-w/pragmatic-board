@@ -1,24 +1,21 @@
 'use client';
 
 import { load, trackPageview } from 'fathom-client';
-import { useEffect, Suspense } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { Suspense, useEffect } from 'react';
 
 function TrackPageView() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   // Load the Fathom script on mount
   useEffect(() => {
     const fathomId = process.env.NEXT_PUBLIC_FATHOM_ID;
-    console.log('fahtom');
 
     if (!fathomId) {
       return;
     }
 
-    console.log('loding');
-    load('hi', {
+    load(fathomId, {
       auto: false,
     });
   }, []);
@@ -29,7 +26,6 @@ function TrackPageView() {
       return;
     }
 
-    console.log('tracking page view');
     trackPageview({
       url: pathname,
       referrer: document.referrer,

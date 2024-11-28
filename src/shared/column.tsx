@@ -3,7 +3,6 @@
 import {
   draggable,
   dropTargetForElements,
-  ElementEventBasePayload,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import { Copy, Ellipsis, Plus } from 'lucide-react';
 import { memo, useContext, useEffect, useRef, useState } from 'react';
@@ -12,6 +11,9 @@ import invariant from 'tiny-invariant';
 import { autoScrollForElements } from '@/pdnd-auto-scroll/entry-point/element';
 import { unsafeOverflowAutoScrollForElements } from '@/pdnd-auto-scroll/entry-point/unsafe-overflow/element';
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
+import { DragLocationHistory } from '@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types';
+import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
 import { Card, CardShadow } from './card';
 import {
   getColumnData,
@@ -23,13 +25,10 @@ import {
   TCardData,
   TColumn,
 } from './data';
-import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
-import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
+import { blockBoardPanningAttr } from './data-attributes';
 import { isSafari } from './is-safari';
-import { DragLocationHistory } from '@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types';
 import { isShallowEqual } from './is-shallow-equal';
 import { SettingsContext } from './settings-context';
-import { blockBoardPanningAttr } from './data-attributes';
 
 type TColumnState =
   | {
