@@ -6,14 +6,6 @@ import { Gift } from 'lucide-react';
 import Link from 'next/link';
 import { forwardRef, useContext } from 'react';
 
-type TLink = { title: string; href: string };
-
-const links: TLink[] = [
-  { title: 'Board', href: '/board' },
-  { title: 'One column', href: '/one-column' },
-  { title: 'Two columns', href: '/two-columns' },
-];
-
 type TBooleanFields = {
   [TKey in keyof TFields]: TFields[TKey]['type'] extends 'boolean' ? TFields[TKey] : never;
 };
