@@ -30,23 +30,10 @@ export const SettingsContext = createContext<TSettingsContext>({
 export function SettingsContextProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<TSettings>(defaultSettings);
 
-  useEffect(() => {
-    // restore from local storage when mounting
-    const string = localStorage.getItem('settings');
-    if (string == null) {
-      return;
-    }
-    console.log('setting settings from local storage');
-    const value = JSON.parse(string);
-    setSettings(value);
-  }, []);
-
   const value = useMemo(() => {
     function update(partial: Partial<TSettings>) {
       const updated = { ...settings, ...partial };
       setSettings(updated);
-
-      localStorage.setItem('settings', JSON.stringify(updated));
     }
 
     return {

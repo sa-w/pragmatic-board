@@ -9,13 +9,13 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { FPSPanel } from './fps-panel';
 import { SettingsDialog } from './settings-dialog';
 
-type TLink = { title: string; href: string };
+type TRoute = { title: string; href: string };
 
-const links: TLink[] = [
-  { title: 'Board', href: '/board' },
-  { title: 'One column', href: '/one-column' },
-  { title: 'Two columns', href: '/two-columns' },
-];
+const routes = {
+  board: { title: 'Board', href: '/board' },
+  oneColumn: { title: 'One Column', href: '/one-column' },
+  twoColumns: { title: 'Two Columns', href: '/two-columns' },
+} as const satisfies { [key: string]: TRoute };
 
 export function TopBar() {
   const pathname = usePathname();
@@ -75,13 +75,13 @@ export function TopBar() {
     <>
       {isTopBarExpanded ? (
         <header className="flex h-12 flex-row items-center gap-3 border-b bg-sky-800 px-3 leading-4 text-white">
-          {links.map((link) => (
+          {Object.values(routes).map((route) => (
             <Link
-              href={link.href}
-              key={link.href}
-              className={`rounded p-2 font-bold hover:bg-sky-700 active:bg-sky-600 ${pathname === link.href ? 'bg-blue-900' : ''}`}
+              href={route.href}
+              key={route.href}
+              className={`rounded p-2 font-bold hover:bg-sky-700 active:bg-sky-600 ${pathname === route.href ? 'bg-blue-900' : ''}`}
             >
-              {link.title}
+              {route.title}
             </Link>
           ))}
         </header>
