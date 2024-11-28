@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { TopBar } from './top-bar';
 import { SettingsContextProvider } from '@/shared/settings-context';
+import Fathom from './fathom';
 
 export const metadata: Metadata = {
   title: 'Auto scroll playground',
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex h-screen flex-col">
+        <Fathom />
         <SettingsContextProvider>
           <TopBar />
           {/* position: absolute needed for max-height:100% to be respected internally */}

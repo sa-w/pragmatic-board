@@ -2,6 +2,8 @@
 
 import { TFields, TSelectField, TSettings } from '@/shared/settings';
 import { SettingsContext } from '@/shared/settings-context';
+import { Gift } from 'lucide-react';
+import Link from 'next/link';
 import { forwardRef, useContext } from 'react';
 
 type TLink = { title: string; href: string };
@@ -73,42 +75,82 @@ export const SettingsDialog = forwardRef<HTMLDivElement>(function SettingsDialog
 
   return (
     <div
-      className="absolute right-0 top-11 flex max-h-[60vh] w-80 select-none flex-col gap-2 overflow-y-auto rounded bg-slate-100 p-2"
+      className="absolute right-0 top-11 flex max-h-[60vh] w-80 flex-col overflow-y-auto rounded bg-slate-100"
       ref={ref}
     >
-      <button
-        type="button"
-        className="rounded bg-orange-200 p-2 hover:bg-orange-300 active:bg-orange-100"
-        onClick={reset}
-      >
-        Reset defaults
-      </button>
-      {/* Sorry TS :( */}
-      {Object.entries(fields).map((value) => {
-        const fieldKey = value[0] as keyof typeof fields;
-        const field = value[1];
-        if (field.type === 'boolean') {
-          return (
-            <BooleanField
-              fields={fields}
-              key={fieldKey}
-              fieldKey={fieldKey}
-              value={settings[fieldKey] as boolean}
-            />
-          );
-        }
-        if (field.type === 'select') {
-          return (
-            <SelectField
-              field={field}
-              key={fieldKey}
-              fieldKey={fieldKey as keyof TSettings}
-              value={settings[fieldKey] as string}
-            />
-          );
-        }
-        return null;
-      })}
+      <div className="flex select-none flex-col gap-2 p-2">
+        {/* Sorry TS :( */}
+        {Object.entries(fields).map((value) => {
+          const fieldKey = value[0] as keyof typeof fields;
+          const field = value[1];
+          if (field.type === 'boolean') {
+            return (
+              <BooleanField
+                fields={fields}
+                key={fieldKey}
+                fieldKey={fieldKey}
+                value={settings[fieldKey] as boolean}
+              />
+            );
+          }
+          if (field.type === 'select') {
+            return (
+              <SelectField
+                field={field}
+                key={fieldKey}
+                fieldKey={fieldKey as keyof TSettings}
+                value={settings[fieldKey] as string}
+              />
+            );
+          }
+          return null;
+        })}
+        <button
+          type="button"
+          className="rounded bg-orange-200 p-2 hover:bg-orange-300 active:bg-orange-100"
+          onClick={reset}
+        >
+          Reset defaults
+        </button>
+      </div>
+      <div className="sticky bottom-0 flex flex-row items-center gap-2 text-balance border-t bg-slate-200 p-2 text-sm">
+        <Gift size={32} className="text-red-500" />
+        <div>
+          Made by{' '}
+          <Link
+            className="text-sky-800 hover:text-sky-700 active:text-sky-900"
+            target="_blank"
+            href="https://bsky.app/profile/alexreardon.bsky.social"
+          >
+            Alex Reardon
+          </Link>{' '}
+          with{' '}
+          <Link
+            className="text-sky-800 hover:text-sky-700 active:text-sky-900"
+            target="_blank"
+            href="https://github.com/atlassian/pragmatic-drag-and-drop"
+          >
+            Pragmatic drag and drop
+          </Link>
+          ,{' '}
+          <Link
+            className="text-sky-800 hover:text-sky-700 active:text-sky-900"
+            target="_blank"
+            href="https://react.dev/"
+          >
+            React
+          </Link>
+          , and{' '}
+          <Link
+            className="text-sky-800 hover:text-sky-700 active:text-sky-900"
+            target="_blank"
+            href="https://tailwindcss.com/"
+          >
+            TailwindCSS
+          </Link>
+          .
+        </div>
+      </div>
     </div>
   );
 });
