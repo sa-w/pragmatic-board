@@ -15,10 +15,10 @@ export type TBooleanField = {
 };
 
 export const fields = {
-  isFilming: {
+  isSpacious: {
     type: 'boolean',
-    title: 'Film mode',
-    description: 'Prepare UI for filming',
+    title: 'Spacious',
+    description: 'Add extra spacing to the board to better show off overflow scrolling',
   },
   isFPSPanelEnabled: {
     type: 'boolean',
