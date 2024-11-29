@@ -5,7 +5,7 @@ import { SettingsContextProvider } from '@/shared/settings-context';
 import { Fathom } from './fathom';
 
 export const metadata: Metadata = {
-  title: 'Pragmatic board 🏄‍♂️',
+  title: 'Pragmatic board',
   description: 'A board powered by Pragmatic drag and drop, React and TailwindCSS',
   authors: { name: 'Alex Reardon', url: 'https://alexreardon.bsky.social/' },
 };
