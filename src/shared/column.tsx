@@ -222,7 +222,11 @@ export function Column({ column }: { column: TColumn }) {
         >
           <div className="flex flex-row items-center justify-between p-3 pb-2" ref={headerRef}>
             <div className="pl-2 font-bold leading-4">{column.title}</div>
-            <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
+            <button
+              type="button"
+              className="rounded p-2 hover:bg-slate-700 active:bg-slate-600"
+              aria-label="More actions"
+            >
               <Ellipsis size={16} />
             </button>
           </div>
@@ -245,7 +249,11 @@ export function Column({ column }: { column: TColumn }) {
               <Plus size={16} />
               <div className="leading-4">Add a card</div>
             </button>
-            <button type="button" className="rounded p-2 hover:bg-slate-700 active:bg-slate-600">
+            <button
+              type="button"
+              className="rounded p-2 hover:bg-slate-700 active:bg-slate-600"
+              aria-label="Create card from template"
+            >
               <Copy size={16} />
             </button>
           </div>
