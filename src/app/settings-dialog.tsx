@@ -62,7 +62,12 @@ function SelectField({
   );
 }
 
-const credits = [
+type TCredit = {
+  title: string;
+  href: string;
+};
+
+const credits: TCredit[] = [
   {
     title: 'Pragmatic drag and drop',
     href: 'https://github.com/atlassian/pragmatic-drag-and-drop',
@@ -79,7 +84,20 @@ const credits = [
     title: 'Lucide',
     href: 'https://lucide.dev/',
   },
-] satisfies { title: string; href: string }[];
+];
+
+function Credit({ credit }: { credit: TCredit }) {
+  return (
+    <Link
+      key={credit.href}
+      className="text-sky-800 hover:text-sky-700 active:text-sky-900"
+      target="_blank"
+      href={credit.href}
+    >
+      {credit.title}
+    </Link>
+  );
+}
 
 export const SettingsDialog = forwardRef<HTMLDivElement>(function SettingsDialog(props, ref) {
   const { settings, fields, reset } = useContext(SettingsContext);
@@ -128,25 +146,12 @@ export const SettingsDialog = forwardRef<HTMLDivElement>(function SettingsDialog
         <Gift size={32} className="text-red-500" />
         <div>
           Made by{' '}
-          <Link
-            className="text-sky-800 hover:text-sky-700 active:text-sky-900"
-            target="_blank"
-            href="https://bsky.app/profile/alexreardon.bsky.social"
-          >
-            Alex Reardon
-          </Link>{' '}
+          <Credit credit={{ title: 'Alex Reardon', href: 'https://alexreardon.bsky.social' }} />{' '}
           with{' '}
           {credits.map((credit, index) => (
             <>
               {index === credits.length - 1 ? 'and ' : ''}
-              <Link
-                key={credit.href}
-                className="text-sky-800 hover:text-sky-700 active:text-sky-900"
-                target="_blank"
-                href={credit.href}
-              >
-                {credit.title}
-              </Link>
+              <Credit credit={credit} />
               {index === credits.length - 1 ? '.' : ', '}
             </>
           ))}
