@@ -5,7 +5,7 @@ import { bindAll } from 'bind-event-listener';
 import { PanelTopClose, PanelTopOpen, Settings, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { FPSPanel } from './fps-panel';
 import { SettingsDialog } from './settings-dialog';
 
@@ -83,7 +83,8 @@ export function TopBar() {
   }
 
   return (
-    <>
+    // Suspense boundary is for `useSearchParams`
+    <Suspense>
       {isTopBarExpanded ? (
         <header className="flex h-12 flex-row items-center gap-1 border-b bg-sky-800 px-3 leading-4 text-white">
           {Object.values(routes).map((route) => (
@@ -126,6 +127,6 @@ export function TopBar() {
         </button>
         {isSettingsDialogOpen ? <SettingsDialog ref={settingsDialogRef} /> : null}
       </div>
-    </>
+    </Suspense>
   );
 }
