@@ -4,8 +4,8 @@ import { SettingsContext } from '@/shared/settings-context';
 import { bindAll } from 'bind-event-listener';
 import { PanelTopClose, PanelTopOpen, Settings, Zap } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { Suspense, useContext, useEffect, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { FPSPanel } from './fps-panel';
 import { SettingsDialog } from './settings-dialog';
 
@@ -19,20 +19,13 @@ const routes = {
 
 export function TopBar() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [isTopBarExpanded, setIsTopBarExpanded] = useState<boolean>(true);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState<boolean>(false);
   const settingsDialogRef = useRef<HTMLDivElement | null>(null);
   const settingsTriggerRef = useRef<HTMLButtonElement | null>(null);
   const { settings } = useContext(SettingsContext);
 
-  const isFullScreen: boolean = searchParams.get('full-screen') === 'true';
-
   useEffect(() => {
-    if (isFullScreen) {
-      return;
-    }
-
     return bindAll(window, [
       {
         type: 'keydown',
@@ -76,15 +69,10 @@ export function TopBar() {
         },
       },
     ]);
-  }, [isTopBarExpanded, isSettingsDialogOpen, isFullScreen]);
-
-  if (isFullScreen) {
-    return null;
-  }
+  }, [isTopBarExpanded, isSettingsDialogOpen]);
 
   return (
-    // Suspense boundary is for `useSearchParams`
-    <Suspense>
+    <>
       {isTopBarExpanded ? (
         <header className="flex h-12 flex-row items-center gap-1 border-b bg-sky-800 px-3 leading-4 text-white">
           {Object.values(routes).map((route) => (
@@ -127,6 +115,6 @@ export function TopBar() {
         </button>
         {isSettingsDialogOpen ? <SettingsDialog ref={settingsDialogRef} /> : null}
       </div>
-    </Suspense>
+    </>
   );
 }
