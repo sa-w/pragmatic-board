@@ -4,7 +4,7 @@ import { SettingsContext } from '@/shared/settings-context';
 import { bindAll } from 'bind-event-listener';
 import { PanelTopClose, PanelTopOpen, Settings } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { FPSPanel } from './fps-panel';
 import { SettingsDialog } from './settings-dialog';
@@ -19,13 +19,20 @@ const routes = {
 
 export function TopBar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isTopBarExpanded, setIsTopBarExpanded] = useState<boolean>(true);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState<boolean>(false);
   const settingsDialogRef = useRef<HTMLDivElement | null>(null);
   const settingsTriggerRef = useRef<HTMLButtonElement | null>(null);
   const { settings } = useContext(SettingsContext);
 
+  const isFullScreen: boolean = searchParams.get('full-screen') === 'true';
+
   useEffect(() => {
+    if (isFullScreen) {
+      return;
+    }
+
     return bindAll(window, [
       {
         type: 'keydown',
@@ -69,7 +76,11 @@ export function TopBar() {
         },
       },
     ]);
-  }, [isTopBarExpanded, isSettingsDialogOpen]);
+  }, [isTopBarExpanded, isSettingsDialogOpen, isFullScreen]);
+
+  if (isFullScreen) {
+    return null;
+  }
 
   return (
     <>
