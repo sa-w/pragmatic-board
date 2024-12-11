@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { TopBar } from './top-bar';
 import { SettingsContextProvider } from '@/shared/settings-context';
-import { Fathom } from './fathom';
+import { FathomAnalytics } from './fathom';
 
 export const metadata: Metadata = {
   title: 'Pragmatic board',
@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex h-screen flex-col">
-        <Fathom />
+        <FathomAnalytics />
         <SettingsContextProvider>
           <TopBar />
           {/* position: absolute needed for max-height:100% to be respected internally */}

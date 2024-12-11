@@ -4,7 +4,7 @@ import { load, trackPageview } from 'fathom-client';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
-export function Fathom() {
+export function FathomAnalytics() {
   const pathname = usePathname();
 
   // Load the Fathom script on mount
