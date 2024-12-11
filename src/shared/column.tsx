@@ -197,15 +197,11 @@ export function Column({ column }: { column: TColumn }) {
         },
         getOverflow() {
           return {
-            fromTopEdge: {
+            forTopEdge: {
               top: 1000,
-              right: 0,
-              left: 0,
             },
-            fromBottomEdge: {
+            forBottomEdge: {
               bottom: 1000,
-              right: 0,
-              left: 0,
             },
           };
         },

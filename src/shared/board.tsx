@@ -258,12 +258,12 @@ export function Board({ initial }: { initial: TBoard }) {
         },
         getOverflow() {
           return {
-            fromLeftEdge: {
+            forLeftEdge: {
               top: 1000,
               left: 1000,
               bottom: 1000,
             },
-            fromRightEdge: {
+            forRightEdge: {
               top: 1000,
               right: 1000,
               bottom: 1000,
