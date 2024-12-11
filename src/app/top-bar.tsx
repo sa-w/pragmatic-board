@@ -85,7 +85,7 @@ export function TopBar() {
   return (
     <>
       {isTopBarExpanded ? (
-        <header className="flex h-12 flex-row items-center gap-3 border-b bg-sky-800 px-3 leading-4 text-white">
+        <header className="flex h-12 flex-row items-center gap-1 border-b bg-sky-800 px-3 leading-4 text-white">
           {Object.values(routes).map((route) => (
             <Link
               href={route.href}
@@ -101,7 +101,7 @@ export function TopBar() {
         {settings.isFPSPanelEnabled ? <FPSPanel /> : null}
         <Link
           href="https://stackblitz.com/~/github.com/alexreardon/pragmatic-board"
-          className="flex flex-row items-center gap-1 rounded bg-purple-900 px-2 py-1 text-sm text-white hover:bg-purple-700 active:bg-purple-600"
+          className="flex flex-row items-center gap-1 rounded bg-slate-800 px-2 py-1 text-white hover:bg-gray-700 active:bg-gray-600"
           target="_blank"
         >
           <Zap size={16} />
