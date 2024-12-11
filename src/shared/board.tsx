@@ -1,6 +1,6 @@
 'use client';
 
-import { autoScrollForElements } from '@/pdnd-auto-scroll/entry-point/element';
+import { autoScrollForElements } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/element';
 import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { reorderWithEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/util/reorder-with-edge';
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
@@ -19,7 +19,7 @@ import {
   TColumn,
 } from './data';
 import { SettingsContext } from './settings-context';
-import { unsafeOverflowAutoScrollForElements } from '@/pdnd-auto-scroll/entry-point/unsafe-overflow/element';
+import { unsafeOverflowAutoScrollForElements } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/unsafe-overflow/element';
 import { bindAll } from 'bind-event-listener';
 import { blockBoardPanningAttr } from './data-attributes';
 import { CleanupFn } from '@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types';
