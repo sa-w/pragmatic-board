@@ -4,7 +4,7 @@ import { TFields, TSelectField, TSettings } from '@/shared/settings';
 import { SettingsContext } from '@/shared/settings-context';
 import { Gift } from 'lucide-react';
 import Link from 'next/link';
-import { forwardRef, useContext } from 'react';
+import { forwardRef, Fragment, useContext } from 'react';
 
 type TBooleanFields = {
   [TKey in keyof TFields]: TFields[TKey]['type'] extends 'boolean' ? TFields[TKey] : never;
@@ -149,11 +149,11 @@ export const SettingsDialog = forwardRef<HTMLDivElement>(function SettingsDialog
           <Credit credit={{ title: 'Alex Reardon', href: 'https://alexreardon.bsky.social' }} />{' '}
           with{' '}
           {credits.map((credit, index) => (
-            <>
+            <Fragment key={credit.href}>
               {index === credits.length - 1 ? 'and ' : ''}
               <Credit credit={credit} />
               {index === credits.length - 1 ? '.' : ', '}
-            </>
+            </Fragment>
           ))}
         </div>
       </div>

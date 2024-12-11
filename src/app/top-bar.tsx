@@ -2,7 +2,7 @@
 
 import { SettingsContext } from '@/shared/settings-context';
 import { bindAll } from 'bind-event-listener';
-import { PanelTopClose, PanelTopOpen, Settings } from 'lucide-react';
+import { PanelTopClose, PanelTopOpen, Settings, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -97,12 +97,16 @@ export function TopBar() {
           ))}
         </header>
       ) : null}
-      <div className="fixed right-2 top-0 isolate z-[1] flex h-12 flex-row items-center justify-center">
-        {settings.isFPSPanelEnabled ? (
-          <div className="pr-1">
-            <FPSPanel />
-          </div>
-        ) : null}
+      <div className="fixed right-2 top-0 isolate z-[1] flex h-12 flex-row items-center justify-center gap-1">
+        {settings.isFPSPanelEnabled ? <FPSPanel /> : null}
+        <Link
+          href="https://stackblitz.com/~/github.com/alexreardon/pragmatic-board"
+          className="flex flex-row items-center gap-1 rounded bg-purple-900 px-2 py-1 text-sm text-white hover:bg-purple-700 active:bg-purple-600"
+          target="_blank"
+        >
+          <Zap size={16} />
+          <span>Open in StackBlitz</span>
+        </Link>
         <button
           type="button"
           className="rounded p-2 text-white hover:bg-sky-700 active:bg-sky-600"
