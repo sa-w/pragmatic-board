@@ -62,6 +62,25 @@ function SelectField({
   );
 }
 
+const credits = [
+  {
+    title: 'Pragmatic drag and drop',
+    href: 'https://github.com/atlassian/pragmatic-drag-and-drop',
+  },
+  {
+    title: 'React',
+    href: 'https://react.dev/',
+  },
+  {
+    title: 'Tailwind',
+    href: 'https://tailwindcss.com/',
+  },
+  {
+    title: 'Lucide',
+    href: 'https://lucide.dev/',
+  },
+] satisfies { title: string; href: string }[];
+
 export const SettingsDialog = forwardRef<HTMLDivElement>(function SettingsDialog(props, ref) {
   const { settings, fields, reset } = useContext(SettingsContext);
 
@@ -117,38 +136,20 @@ export const SettingsDialog = forwardRef<HTMLDivElement>(function SettingsDialog
             Alex Reardon
           </Link>{' '}
           with{' '}
-          <Link
-            className="text-sky-800 hover:text-sky-700 active:text-sky-900"
-            target="_blank"
-            href="https://github.com/atlassian/pragmatic-drag-and-drop"
-          >
-            Pragmatic drag and drop
-          </Link>
-          ,{' '}
-          <Link
-            className="text-sky-800 hover:text-sky-700 active:text-sky-900"
-            target="_blank"
-            href="https://react.dev/"
-          >
-            React
-          </Link>
-          ,{' '}
-          <Link
-            className="text-sky-800 hover:text-sky-700 active:text-sky-900"
-            target="_blank"
-            href="https://tailwindcss.com/"
-          >
-            TailwindCSS{' '}
-          </Link>
-          and{' '}
-          <Link
-            className="text-sky-800 hover:text-sky-700 active:text-sky-900"
-            target="_blank"
-            href="https://lucide.dev/"
-          >
-            Lucide
-          </Link>
-          .
+          {credits.map((credit, index) => (
+            <>
+              {index === credits.length - 1 ? 'and ' : ''}
+              <Link
+                key={credit.href}
+                className="text-sky-800 hover:text-sky-700 active:text-sky-900"
+                target="_blank"
+                href={credit.href}
+              >
+                {credit.title}
+              </Link>
+              {index === credits.length - 1 ? '.' : ', '}
+            </>
+          ))}
         </div>
       </div>
     </div>
