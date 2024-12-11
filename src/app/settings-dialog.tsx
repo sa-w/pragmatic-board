@@ -132,13 +132,21 @@ export const SettingsDialog = forwardRef<HTMLDivElement>(function SettingsDialog
           >
             React
           </Link>
-          , and{' '}
+          ,{' '}
           <Link
             className="text-sky-800 hover:text-sky-700 active:text-sky-900"
             target="_blank"
             href="https://tailwindcss.com/"
           >
-            TailwindCSS
+            TailwindCSS{' '}
+          </Link>
+          and{' '}
+          <Link
+            className="text-sky-800 hover:text-sky-700 active:text-sky-900"
+            target="_blank"
+            href="https://lucide.dev/"
+          >
+            Lucide
           </Link>
           .
         </div>
