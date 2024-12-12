@@ -27,7 +27,7 @@ export function TrackPageview() {
       return;
     }
 
-    const url: string = `${pathname}${search?.toString()}`;
+    const url: string = search ? `${pathname}?${search.toString()}` : pathname;
 
     trackPageview({
       url,
