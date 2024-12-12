@@ -74,12 +74,12 @@ export function TopBar() {
   return (
     <>
       {isTopBarExpanded ? (
-        <header className="flex h-12 flex-row items-center gap-1 border-b bg-sky-800 px-3 leading-4 text-white">
+        <header className="flex h-12 flex-row items-center gap-1 border-b bg-sky-800 px-3">
           {Object.values(routes).map((route) => (
             <Link
               href={route.href}
               key={route.href}
-              className={`rounded p-2 font-bold hover:bg-sky-700 active:bg-sky-600 ${pathname === route.href ? 'bg-blue-900' : ''}`}
+              className={`flex-shrink rounded p-2 text-sm font-bold leading-none text-white hover:bg-sky-700 active:bg-sky-600 sm:text-base sm:leading-none ${pathname === route.href ? 'bg-blue-900' : ''}`}
             >
               {route.title}
             </Link>
@@ -90,11 +90,11 @@ export function TopBar() {
         {settings.isFPSPanelEnabled ? <FPSPanel /> : null}
         <Link
           href="https://stackblitz.com/~/github.com/alexreardon/pragmatic-board"
-          className="flex flex-row items-center gap-1 rounded bg-slate-800 px-2 py-1 text-white hover:bg-gray-700 active:bg-gray-600"
+          className="flex h-8 flex-row items-center gap-1 rounded bg-slate-800 px-2 text-white hover:bg-gray-700 active:bg-gray-600"
           target="_blank"
         >
           <Zap size={16} />
-          <span>Open in StackBlitz</span>
+          <span className="hidden sm:block">Open in StackBlitz</span>
         </Link>
         <button
           type="button"
