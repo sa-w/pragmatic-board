@@ -2,7 +2,7 @@
 
 import { SettingsContext } from '@/shared/settings-context';
 import { bindAll } from 'bind-event-listener';
-import { PanelTopClose, PanelTopOpen, Settings, Zap } from 'lucide-react';
+import { Code, PanelTopClose, PanelTopOpen, Settings, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -88,14 +88,27 @@ export function TopBar() {
       ) : null}
       <div className="fixed right-2 top-0 isolate z-[1] flex h-12 flex-row items-center justify-center gap-1">
         {settings.isFPSPanelEnabled ? <FPSPanel /> : null}
-        <Link
-          href="https://stackblitz.com/~/github.com/alexreardon/pragmatic-board"
-          className="flex h-8 flex-row items-center gap-1 rounded bg-slate-800 px-2 text-white hover:bg-gray-700 active:bg-gray-600"
-          target="_blank"
-        >
-          <Zap size={16} />
-          <span className="hidden sm:block">Open in StackBlitz</span>
-        </Link>
+        {isTopBarExpanded ? (
+          <>
+            <Link
+              href="https://github.com/alexreardon/pragmatic-board"
+              className="flex h-8 flex-row items-center gap-1 rounded bg-slate-800 px-2 text-white hover:bg-gray-700 active:bg-gray-600"
+              target="_blank"
+            >
+              <Code size={16} />
+              <span className="hidden sm:block">Code</span>
+            </Link>
+            <Link
+              href="https://stackblitz.com/~/github.com/alexreardon/pragmatic-board"
+              className="flex h-8 flex-row items-center gap-1 rounded bg-slate-800 px-2 text-white hover:bg-gray-700 active:bg-gray-600"
+              target="_blank"
+            >
+              <Zap size={16} />
+              <span className="hidden sm:block">Run</span>
+            </Link>
+          </>
+        ) : null}
+
         <button
           type="button"
           className="rounded p-2 text-white hover:bg-sky-700 active:bg-sky-600"
