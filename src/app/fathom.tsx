@@ -1,11 +1,12 @@
 'use client';
 
 import { load, trackPageview } from 'fathom-client';
-import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect } from 'react';
 
-export function FathomAnalytics() {
+export function TrackPageview() {
   const pathname = usePathname();
+  const search = useSearchParams();
 
   // Load the Fathom script on mount
   useEffect(() => {
@@ -26,11 +27,23 @@ export function FathomAnalytics() {
       return;
     }
 
+    const url: string = `${pathname}${search?.toString()}`;
+
     trackPageview({
-      url: pathname,
+      url,
       referrer: document.referrer,
     });
-  }, [pathname]);
+  }, [search, pathname]);
 
   return null;
+}
+
+export function FathomAnalytics() {
+  return (
+    // A Suspense boundary is needed for `useSearchParams()`
+    // https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    <Suspense>
+      <TrackPageview />
+    </Suspense>
+  );
 }
