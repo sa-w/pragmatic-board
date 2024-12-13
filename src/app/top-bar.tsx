@@ -108,7 +108,6 @@ export function TopBar() {
             </Link>
           </>
         ) : null}
-
         <button
           type="button"
           className="rounded p-2 text-white hover:bg-sky-700 active:bg-sky-600"
