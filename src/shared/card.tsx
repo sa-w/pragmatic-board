@@ -44,11 +44,11 @@ type TCardState =
 const idle: TCardState = { type: 'idle' };
 
 const stateStyles: { [Key in TCardState['type']]: string } = {
-  idle: 'bg-slate-700 hover:outline outline-2 outline-neutral-50 cursor-grab',
-  'is-dragging': 'bg-slate-700 opacity-40',
+  idle: 'hover:outline outline-2 outline-neutral-50 cursor-grab',
+  'is-dragging': 'opacity-40',
   'is-dragging-left-self': 'hidden',
-  preview: 'bg-slate-700 bg-blue-100',
-  'is-over': 'bg-slate-700',
+  preview: '',
+  'is-over': '',
 };
 
 export function CardShadow({ dragging }: { dragging: DOMRect }) {
@@ -75,7 +75,7 @@ export function CardDisplay({
         <CardShadow dragging={state.dragging} />
       ) : null}
       <div
-        className={`rounded p-2 text-slate-300 ${stateStyles[state.type]}`}
+        className={`rounded bg-slate-700 p-2 text-slate-300 ${stateStyles[state.type]}`}
         ref={innerRef}
         style={
           state.type === 'preview'
@@ -150,7 +150,6 @@ export function Card({ card, columnId }: { card: TCard; columnId: string }) {
           }
           const closestEdge = extractClosestEdge(self.data);
           if (!closestEdge) {
-            console.log('no closest edge');
             return;
           }
 
@@ -167,7 +166,7 @@ export function Card({ card, columnId }: { card: TCard; columnId: string }) {
           if (!closestEdge) {
             return;
           }
-          // optimization - don't update state if we don't need to.
+          // optimization - Don't update react state if we don't need to.
           const proposed: TCardState = { type: 'is-over', dragging: source.data.rect, closestEdge };
           setState((current) => {
             if (isShallowEqual(proposed, current)) {

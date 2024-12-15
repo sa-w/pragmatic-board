@@ -113,11 +113,15 @@ export function Column({ column }: { column: TColumn }) {
             nativeSetDragImage,
             getOffset: preserveOffsetOnSource({ element: header, input: location.current.input }),
             render({ container }) {
+              // Simple drag preview generation: just cloning the current element.
+              // Not using react for this.
               const rect = inner.getBoundingClientRect();
               const preview = inner.cloneNode(true);
               invariant(preview instanceof HTMLElement);
               preview.style.width = `${rect.width}px`;
               preview.style.height = `${rect.height}px`;
+
+              // rotation of native drag previews does not work in safari
               if (!isSafari()) {
                 preview.style.transform = 'rotate(4deg)';
               }
