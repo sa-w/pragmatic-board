@@ -28,7 +28,7 @@ type TCardState =
       type: 'is-dragging';
     }
   | {
-      type: 'is-dragging-left-self';
+      type: 'is-dragging-and-left-self';
     }
   | {
       type: 'is-over';
@@ -43,12 +43,18 @@ type TCardState =
 
 const idle: TCardState = { type: 'idle' };
 
-const stateStyles: { [Key in TCardState['type']]: string } = {
+const innerStyles: { [Key in TCardState['type']]?: string } = {
   idle: 'hover:outline outline-2 outline-neutral-50 cursor-grab',
   'is-dragging': 'opacity-40',
-  'is-dragging-left-self': 'hidden',
-  preview: '',
-  'is-over': '',
+};
+
+const outerStyles: { [Key in TCardState['type']]?: string } = {
+  // We no longer render the draggable item after we have left it
+  // as it's space will be taken up by a shadow on adjacent items.
+  // Using `display:none` rather than returning `null` so we can always
+  // return refs from this component.
+  // Keeping the refs allows us to continue to receive events during the drag.
+  'is-dragging-and-left-self': 'hidden',
 };
 
 export function CardShadow({ dragging }: { dragging: DOMRect }) {
@@ -69,13 +75,14 @@ export function CardDisplay({
   return (
     <div
       ref={outerRef}
-      className={`flex flex-shrink-0 flex-col gap-2 px-3 py-1 ${state.type === 'is-dragging-left-self' ? 'hidden' : ''}`}
+      className={`flex flex-shrink-0 flex-col gap-2 px-3 py-1 ${outerStyles[state.type]}`}
     >
+      {/* Put a shadow before the item if closer to the top edge */}
       {state.type === 'is-over' && state.closestEdge === 'top' ? (
         <CardShadow dragging={state.dragging} />
       ) : null}
       <div
-        className={`rounded bg-slate-700 p-2 text-slate-300 ${stateStyles[state.type]}`}
+        className={`rounded bg-slate-700 p-2 text-slate-300 ${innerStyles[state.type]}`}
         ref={innerRef}
         style={
           state.type === 'preview'
@@ -89,6 +96,7 @@ export function CardDisplay({
       >
         <div>{card.description}</div>
       </div>
+      {/* Put a shadow after the item if closer to the bottom edge */}
       {state.type === 'is-over' && state.closestEdge === 'bottom' ? (
         <CardShadow dragging={state.dragging} />
       ) : null}
@@ -118,6 +126,7 @@ export function Card({ card, columnId }: { card: TCard; columnId: string }) {
             nativeSetDragImage,
             getOffset: preserveOffsetOnSource({ element: inner, input: location.current.input }),
             render({ container }) {
+              // Demonstrating using a react portal to generate a preview
               setState({
                 type: 'preview',
                 container,
@@ -180,7 +189,7 @@ export function Card({ card, columnId }: { card: TCard; columnId: string }) {
             return;
           }
           if (source.data.card.id === card.id) {
-            setState({ type: 'is-dragging-left-self' });
+            setState({ type: 'is-dragging-and-left-self' });
             return;
           }
           setState(idle);
