@@ -18,15 +18,15 @@ function getInitialData(): TBoard {
   })();
 
   const columns: TColumn[] = [
-    { id: 'column:a', title: 'Column A', cards: getCards({ amount: 60 }) },
-    { id: 'column:b', title: 'Column B', cards: getCards({ amount: 4 }) },
-    { id: 'column:c', title: 'Column C', cards: getCards({ amount: 30 }) },
-    { id: 'column:d', title: 'Column D', cards: getCards({ amount: 12 }) },
+    /*{ id: 'column:a', title: 'Column A', cards: getCards({ amount: 0 }) },
+    { id: 'column:b', title: 'Column B', cards: getCards({ amount: 0 }) },
+    { id: 'column:c', title: 'Column C', cards: getCards({ amount: 0 }) },
+    { id: 'column:d', title: 'Column D', cards: getCards({ amount: 0 }) },
     { id: 'column:e', title: 'Column E', cards: getCards({ amount: 0 }) },
-    { id: 'column:f', title: 'Column F', cards: getCards({ amount: 44 }) },
-    { id: 'column:g', title: 'Column G', cards: getCards({ amount: 4 }) },
-    { id: 'column:h', title: 'Column H', cards: getCards({ amount: 8 }) },
-    { id: 'column:i', title: 'Column I', cards: getCards({ amount: 30 }) },
+    { id: 'column:f', title: 'Column F', cards: getCards({ amount: 0 }) },
+    { id: 'column:g', title: 'Column G', cards: getCards({ amount: 0 }) },
+    { id: 'column:h', title: 'Column H', cards: getCards({ amount: 0 }) },
+    { id: 'column:i', title: 'Column I', cards: getCards({ amount: 0 }) },*/
   ];
 
   return {

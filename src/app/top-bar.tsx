@@ -3,19 +3,28 @@
 import { SettingsContext } from '@/shared/settings-context';
 import { bindAll } from 'bind-event-listener';
 import { Code, PanelTopClose, PanelTopOpen, Settings, Zap } from 'lucide-react';
-import Link from 'next/link';
+//import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { FPSPanel } from './fps-panel';
 import { SettingsDialog } from './settings-dialog';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
 
 type TRoute = { title: string; href: string };
 
 const routes = {
-  board: { title: 'Board', href: '/board' },
-  oneColumn: { title: 'One Column', href: '/one-column' },
-  twoColumns: { title: 'Two Columns', href: '/two-columns' },
+  board: { title: 'Kanban', href: '/board' },
+  //oneColumn: { title: 'One Column', href: '/one-column' },
+  //twoColumns: { title: 'Two Columns', href: '/two-columns' },
 } as const satisfies { [key: string]: TRoute };
+
+function handleClick(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
+  event.preventDefault();
+  console.info('You clicked a breadcrumb.');
+}
 
 export function TopBar() {
   const pathname = usePathname();
@@ -24,6 +33,21 @@ export function TopBar() {
   const settingsDialogRef = useRef<HTMLDivElement | null>(null);
   const settingsTriggerRef = useRef<HTMLButtonElement | null>(null);
   const { settings } = useContext(SettingsContext);
+
+  const breadcrumbs = [
+    <Link underline="hover" key="1" color="inherit" href="/" onClick={handleClick}>
+      Kanban
+    </Link>,
+    <Link
+      underline="hover"
+      key="2"
+      color="inherit"
+      href="/material-ui/getting-started/installation/"
+      onClick={handleClick}
+    >
+      Board
+    </Link>,
+  ];
 
   useEffect(() => {
     return bindAll(window, [
@@ -74,19 +98,28 @@ export function TopBar() {
   return (
     <>
       {isTopBarExpanded ? (
-        <header className="flex h-12 flex-row items-center gap-1 border-b bg-sky-800 px-3">
+        <header className="flex h-18 flex-col items-start gap-1 border-b px-3">
           {Object.values(routes).map((route) => (
             <Link
               href={route.href}
               key={route.href}
-              className={`flex-shrink rounded p-2 text-sm font-bold leading-none text-white hover:bg-sky-700 active:bg-sky-600 sm:text-base sm:leading-none ${pathname === route.href ? 'bg-blue-900' : ''}`}
+              className={`flex-shrink rounded p-2 text-sm font-bold leading-none sm:text-base sm:leading-none ${pathname === route.href ? '' : ''}`}
             >
               {route.title}
             </Link>
           ))}
+          <>
+          <Stack spacing={2} sx={{marginBottom: '0.5%'}}>
+                <Breadcrumbs separator="›" aria-label="breadcrumb">
+                  {breadcrumbs}
+                </Breadcrumbs>
+              </Stack></>
+          
         </header>
       ) : null}
-      <div className="fixed right-2 top-0 isolate z-[1] flex h-12 flex-row items-center justify-center gap-1">
+
+
+      {/*<div className="fixed right-2 top-0 isolate z-[1] flex h-12 flex-row items-center justify-center gap-1">
         {settings.isFPSPanelEnabled ? <FPSPanel /> : null}
         {isTopBarExpanded ? (
           <>
@@ -126,7 +159,7 @@ export function TopBar() {
           <Settings size={16} />
         </button>
         {isSettingsDialogOpen ? <SettingsDialog ref={settingsDialogRef} /> : null}
-      </div>
+      </div>*/}
     </>
   );
 }

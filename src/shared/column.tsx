@@ -14,7 +14,7 @@ import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import { DragLocationHistory } from '@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types';
 import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
 import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
-import { Card, CardShadow } from './card';
+import { Cards, CardShadow } from './card';
 import {
   getColumnData,
   isCardData,
@@ -22,6 +22,7 @@ import {
   isColumnData,
   isDraggingACard,
   isDraggingAColumn,
+  TCard,
   TCardData,
   TColumn,
 } from './data';
@@ -29,22 +30,39 @@ import { blockBoardPanningAttr } from './data-attributes';
 import { isSafari } from './is-safari';
 import { isShallowEqual } from './is-shallow-equal';
 import { SettingsContext } from './settings-context';
+import { InputBase, SnackbarCloseReason } from '@mui/material';
+import SimpleSnackbar from './simpleSnackBar';
+
+import Card  from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import CardMedia from '@mui/material/CardMedia';
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import { Button } from '@mui/material';
+import BasicMenu from './basicMenu';
+
+import IconButton, { IconButtonProps } from '@mui/material/IconButton';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShareIcon from '@mui/icons-material/Share';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import React from 'react';
 
 type TColumnState =
   | {
-      type: 'is-card-over';
-      isOverChildCard: boolean;
-      dragging: DOMRect;
-    }
+    type: 'is-card-over';
+    isOverChildCard: boolean;
+    dragging: DOMRect;
+  }
   | {
-      type: 'is-column-over';
-    }
+    type: 'is-column-over';
+  }
   | {
-      type: 'idle';
-    }
+    type: 'idle';
+  }
   | {
-      type: 'is-dragging';
-    };
+    type: 'is-dragging';
+  };
 
 const stateStyles: { [Key in TColumnState['type']]: string } = {
   idle: 'cursor-grab',
@@ -55,13 +73,13 @@ const stateStyles: { [Key in TColumnState['type']]: string } = {
 
 const idle = { type: 'idle' } satisfies TColumnState;
 
-/**
- * A memoized component for rendering out the card.
- *
- * Created so that state changes to the column don't require all cards to be rendered
- */
-const CardList = memo(function CardList({ column }: { column: TColumn }) {
-  return column.cards.map((card) => <Card key={card.id} card={card} columnId={column.id} />);
+interface HandleClose {
+  (event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason): void;
+}
+
+//re render state chenges to card
+const CardList = (function CardList({ column }: { column: TColumn }) {
+  return column.cards.map((card) => <Cards key={card.id} card={card} columnId={column.id} />);
 });
 
 export function Column({ column }: { column: TColumn }) {
@@ -71,6 +89,28 @@ export function Column({ column }: { column: TColumn }) {
   const innerRef = useRef<HTMLDivElement | null>(null);
   const { settings } = useContext(SettingsContext);
   const [state, setState] = useState<TColumnState>(idle);
+  const [value, setValue] = useState("");
+  const [activeColumn, setActiveColumn] = useState(column);
+  const [key, setKey] = useState(0);
+  const taskInputRef = useRef<HTMLInputElement | null>(null);
+  const [show, setShow] = useState(false)
+  const [message, setMessage] = useState("")
+
+  const handleCloseAlert: HandleClose = (
+    event,
+    reason
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setMessage("")
+    setShow(false)
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    setValue(event.currentTarget.value);
+    console.log("Input value:", event.currentTarget.value);
+  };
 
   useEffect(() => {
     const outer = outerFullHeightRef.current;
@@ -82,7 +122,7 @@ export function Column({ column }: { column: TColumn }) {
     invariant(header);
     invariant(inner);
 
-    const data = getColumnData({ column });
+    let data = getColumnData({ column });
 
     function setIsCardOver({ data, location }: { data: TCardData; location: DragLocationHistory }) {
       const innerMost = location.current.dropTargets[0];
@@ -211,10 +251,41 @@ export function Column({ column }: { column: TColumn }) {
         },
       }),
     );
-  }, [column, settings]);
+  }, [activeColumn, settings]);
+
+  function addTask() {
+    let tempCards: TCard[] = activeColumn.cards;
+    /*if(tempCards.length >= 5 ){
+      setMessage("You can not have more than 5 tasks")
+      setShow(true)
+    }else {*/
+    let newTempCard: TCard = {
+      id: `${value}-${Date.now()}`, description: value
+    }
+    tempCards.push(newTempCard);
+    let tempColumns = activeColumn;
+    tempColumns.cards = tempCards
+    setActiveColumn(tempColumns)
+    setKey((k) => k + 1)
+    if (taskInputRef.current) {
+      console.log("Task added:", taskInputRef.current.value);
+      taskInputRef.current.value = ""; // Reset input
+    }
+    //}
+
+  }
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   return (
-    <div className="flex w-72 flex-shrink-0 select-none flex-col" ref={outerFullHeightRef}>
+    <><SimpleSnackbar close={handleCloseAlert} message={message} show={show} /><div className="flex w-72 flex-shrink-0 select-none flex-col" ref={outerFullHeightRef}>
       <div
         className={`flex max-h-full flex-col rounded-lg bg-slate-800 text-neutral-50 ${stateStyles[state.type]}`}
         ref={innerRef}
@@ -224,7 +295,7 @@ export function Column({ column }: { column: TColumn }) {
         <div
           className={`flex max-h-full flex-col ${state.type === 'is-column-over' ? 'invisible' : ''}`}
         >
-          <div className="flex flex-row items-center justify-between p-3 pb-2" ref={headerRef}>
+          {/*<div className="flex flex-row items-center justify-between p-3 pb-2" ref={headerRef}>
             <div className="pl-2 font-bold leading-4">{column.title}</div>
             <button
               type="button"
@@ -233,36 +304,63 @@ export function Column({ column }: { column: TColumn }) {
             >
               <Ellipsis size={16} />
             </button>
-          </div>
-          <div
-            className="flex flex-col overflow-y-auto [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
-            ref={scrollableRef}
-          >
-            <CardList column={column} />
-            {state.type === 'is-card-over' && !state.isOverChildCard ? (
-              <div className="flex-shrink-0 px-3 py-1">
-                <CardShadow dragging={state.dragging} />
+          </div>*/}
+
+<div className="flex flex-row items-center justify-between p-3 pb-2" ref={headerRef}>
+
+          <Card sx={{ minWidth: 345, maxWidth: 345 }} >
+            <BasicMenu anchorEl={anchorEl} open={open} handleClose={handleClose} />
+            <CardHeader
+              action={<IconButton aria-label="settings" onClick={handleClick}>
+                <MoreVertIcon />
+              </IconButton>}
+              title={column.title} />
+
+            <CardContent>
+              <div
+                className="flex flex-col overflow-y-auto [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
+                ref={scrollableRef}
+              >
+                <CardList column={column} />
+                {state.type === 'is-card-over' && !state.isOverChildCard ? (
+                  <div className="flex-shrink-0 px-3 py-1">
+                    <CardShadow dragging={state.dragging} />
+                  </div>
+                ) : null}
               </div>
-            ) : null}
-          </div>
-          <div className="flex flex-row gap-2 p-3">
+              <div className="flex flex-row gap-2 p-3">
+                <InputBase
+                  sx={{ ml: 1, flex: 1, color: 'white' }}
+                  placeholder="Add a task"
+                  inputProps={{ "aria-label": "Add a task" }}
+                  onKeyUp={handleKeyUp}
+                  inputRef={taskInputRef} />
+              </div>
+              {/*<div className="flex flex-row gap-2 p-3">
+
             <button
               type="button"
               className="flex flex-grow flex-row gap-1 rounded p-2 hover:bg-slate-700 active:bg-slate-600"
+              onClick={addTask}
             >
               <Plus size={16} />
-              <div className="leading-4">Add a card</div>
-            </button>
-            <button
-              type="button"
-              className="rounded p-2 hover:bg-slate-700 active:bg-slate-600"
-              aria-label="Create card from template"
-            >
-              <Copy size={16} />
-            </button>
+              <div className="leading-4">Add a task</div>
+            </button>*/}
+
+
+
+            </CardContent>
+
+            <CardActions disableSpacing>
+              <Button sx={{ margin: 'auto' }} variant="text">Add Card</Button>
+            </CardActions>
+
+          </Card>
           </div>
+
         </div>
       </div>
     </div>
+  </>
   );
 }

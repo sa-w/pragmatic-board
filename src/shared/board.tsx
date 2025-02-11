@@ -16,6 +16,7 @@ import {
   isDraggingACard,
   isDraggingAColumn,
   TBoard,
+  TCard,
   TColumn,
 } from './data';
 import { SettingsContext } from './settings-context';
@@ -23,11 +24,43 @@ import { unsafeOverflowAutoScrollForElements } from '@atlaskit/pragmatic-drag-an
 import { bindAll } from 'bind-event-listener';
 import { blockBoardPanningAttr } from './data-attributes';
 import { CleanupFn } from '@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types';
+import Paper from '@mui/material/Paper';
+import InputBase from '@mui/material/InputBase';
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import { Button, SnackbarCloseReason } from '@mui/material';
+import SimpleSnackbar from './simpleSnackBar';
+
+interface HandleClose {
+  (event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason): void;
+}
+
 
 export function Board({ initial }: { initial: TBoard }) {
   const [data, setData] = useState(initial);
   const scrollableRef = useRef<HTMLDivElement | null>(null);
   const { settings } = useContext(SettingsContext);
+  const [inputValue, setInputValue] = useState("");
+  const [key, setKey] = useState(0);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [show, setShow] = useState(false)
+  const [message, setMessage] = useState("")
+
+  const handleClose: HandleClose = (
+    event,
+    reason
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setMessage("")
+    setShow(false)
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    setInputValue(event.currentTarget.value);
+    console.log("Input value:", event.currentTarget.value);
+  };
 
   useEffect(() => {
     const element = scrollableRef.current;
@@ -187,6 +220,7 @@ export function Board({ initial }: { initial: TBoard }) {
               cards: destinationCards,
             };
             setData({ ...data, columns });
+            setKey((k) => k + 1)
             return;
           }
         },
@@ -272,7 +306,7 @@ export function Board({ initial }: { initial: TBoard }) {
         },
       }),
     );
-  }, [data, settings]);
+  }, [data, key, settings]);
 
   // Panning the board
   useEffect(() => {
@@ -340,16 +374,59 @@ export function Board({ initial }: { initial: TBoard }) {
     };
   }, []);
 
+  function addColumn() {
+    let tempCards: TCard[] = []
+    let tempColumns: TColumn = {
+      id: `${inputValue}-${Date.now()}`, title: inputValue, cards: tempCards
+    }
+    let tempData = data.columns
+
+    if (tempData.length >= 5) {
+      setMessage("You can not have more than 5 columns")
+      setShow(true)
+    } else {
+
+      tempData.push(tempColumns)
+      let listTempColumns: TColumn[] = tempData;
+      let tempBoard: TBoard = { columns: listTempColumns }
+      setData(tempBoard)
+      if (inputRef.current) {
+        console.log("Column added:", inputRef.current.value);
+        inputRef.current.value = ""; // Reset input
+      }
+
+    }
+
+
+  }
+
   return (
-    <div className={`flex h-full flex-col ${settings.isBoardMoreObvious ? 'px-32 py-20' : ''}`}>
+    <><SimpleSnackbar close={handleClose} message={message} show={show} /><div className={`flex h-full flex-col ${settings.isBoardMoreObvious ? 'px-32 py-20' : ''}`}>
+
       <div
         className={`flex h-full flex-row gap-3 overflow-x-auto p-3 [scrollbar-color:theme(colors.sky.600)_theme(colors.sky.800)] [scrollbar-width:thin] ${settings.isBoardMoreObvious ? 'rounded border-2 border-dashed' : ''}`}
         ref={scrollableRef}
       >
+
         {data.columns.map((column) => (
           <Column key={column.id} column={column} />
         ))}
+
+        {data.columns.length >= 5 ? null :<span>            <Paper
+          component="form"
+          sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 'auto' }}
+        >
+          <InputBase
+            sx={{ ml: 1, flex: 1 }}
+            placeholder="Column name"
+            inputProps={{ "aria-label": "Column name" }}
+            inputRef={inputRef}
+            onKeyUp={handleKeyUp} /><span><Button variant="text" onClick={addColumn}>Add Column</Button></span>
+
+        </Paper></span>} 
       </div>
-    </div>
+    </div></>
   );
 }
+
+
