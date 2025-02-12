@@ -104,7 +104,7 @@ export function CardDisplay({
   );
 }
 
-export function Cards({ card, columnId }: { card: TCard; columnId: string }) {
+export function Card({ card, columnId }: { card: TCard; columnId: string }) {
   const outerRef = useRef<HTMLDivElement | null>(null);
   const innerRef = useRef<HTMLDivElement | null>(null);
   const [state, setState] = useState<TCardState>(idle);

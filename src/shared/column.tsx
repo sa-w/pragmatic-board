@@ -14,7 +14,7 @@ import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import { DragLocationHistory } from '@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types';
 import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
 import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
-import { Cards, CardShadow } from './card';
+import { Card, CardShadow } from './card';
 import {
   getColumnData,
   isCardData,
@@ -33,7 +33,6 @@ import { SettingsContext } from './settings-context';
 import { InputBase, SnackbarCloseReason } from '@mui/material';
 import SimpleSnackbar from './simpleSnackBar';
 
-import Card  from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
@@ -79,7 +78,7 @@ interface HandleClose {
 
 //re render state chenges to card
 const CardList = (function CardList({ column }: { column: TColumn }) {
-  return column.cards.map((card) => <Cards key={card.id} card={card} columnId={column.id} />);
+  return column.cards.map((card) => <Card key={card.id} card={card} columnId={column.id} />);
 });
 
 export function Column({ column }: { column: TColumn }) {
@@ -251,10 +250,10 @@ export function Column({ column }: { column: TColumn }) {
         },
       }),
     );
-  }, [activeColumn, settings]);
+  }, [column, settings]);
 
   function addTask() {
-    let tempCards: TCard[] = activeColumn.cards;
+    let tempCards: TCard[] = column.cards;
     /*if(tempCards.length >= 5 ){
       setMessage("You can not have more than 5 tasks")
       setShow(true)
@@ -265,7 +264,8 @@ export function Column({ column }: { column: TColumn }) {
     tempCards.push(newTempCard);
     let tempColumns = activeColumn;
     tempColumns.cards = tempCards
-    setActiveColumn(tempColumns)
+    column = tempColumns
+    //setActiveColumn(tempColumns)
     setKey((k) => k + 1)
     if (taskInputRef.current) {
       console.log("Task added:", taskInputRef.current.value);
@@ -295,7 +295,7 @@ export function Column({ column }: { column: TColumn }) {
         <div
           className={`flex max-h-full flex-col ${state.type === 'is-column-over' ? 'invisible' : ''}`}
         >
-          {/*<div className="flex flex-row items-center justify-between p-3 pb-2" ref={headerRef}>
+          <div className="flex flex-row items-center justify-between p-3 pb-2" ref={headerRef}>
             <div className="pl-2 font-bold leading-4">{column.title}</div>
             <button
               type="button"
@@ -304,11 +304,9 @@ export function Column({ column }: { column: TColumn }) {
             >
               <Ellipsis size={16} />
             </button>
-          </div>*/}
+          </div>
 
-<div className="flex flex-row items-center justify-between p-3 pb-2" ref={headerRef}>
-
-          <Card sx={{ minWidth: 345, maxWidth: 345 }} >
+          {/*<Card sx={{ minWidth: 345, maxWidth: 345 }} >
             <BasicMenu anchorEl={anchorEl} open={open} handleClose={handleClose} />
             <CardHeader
               action={<IconButton aria-label="settings" onClick={handleClick}>
@@ -316,7 +314,7 @@ export function Column({ column }: { column: TColumn }) {
               </IconButton>}
               title={column.title} />
 
-            <CardContent>
+            <CardContent> */}
               <div
                 className="flex flex-col overflow-y-auto [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
                 ref={scrollableRef}
@@ -336,7 +334,7 @@ export function Column({ column }: { column: TColumn }) {
                   onKeyUp={handleKeyUp}
                   inputRef={taskInputRef} />
               </div>
-              {/*<div className="flex flex-row gap-2 p-3">
+              <div className="flex flex-row gap-2 p-3">
 
             <button
               type="button"
@@ -345,17 +343,17 @@ export function Column({ column }: { column: TColumn }) {
             >
               <Plus size={16} />
               <div className="leading-4">Add a task</div>
-            </button>*/}
+            </button>
 
 
 
-            </CardContent>
+            {/*</CardContent>
 
             <CardActions disableSpacing>
               <Button sx={{ margin: 'auto' }} variant="text">Add Card</Button>
             </CardActions>
 
-          </Card>
+          </Card>*/}
           </div>
 
         </div>
