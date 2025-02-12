@@ -14,7 +14,7 @@ import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import { DragLocationHistory } from '@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types';
 import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
 import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
-import { Card, CardShadow } from './card';
+import { Cards, CardShadow } from './card';
 import {
   getColumnData,
   isCardData,
@@ -78,7 +78,7 @@ interface HandleClose {
 
 //re render state chenges to card
 const CardList = (function CardList({ column }: { column: TColumn }) {
-  return column.cards.map((card) => <Card key={card.id} card={card} columnId={column.id} />);
+  return column.cards.map((card) => <Cards key={card.id} card={card} columnId={column.id} />);
 });
 
 export function Column({ column }: { column: TColumn }) {
