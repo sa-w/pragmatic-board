@@ -7,9 +7,11 @@ interface BasicMenuProps {
     anchorEl: null | HTMLElement;
     open: boolean;
     handleClose: () => void;
+    rename: (name: string) => void;
+    clear: () => void;
   }
   
-  export default function BasicMenu({ anchorEl, open, handleClose }: BasicMenuProps) {
+  export default function BasicMenu({ anchorEl, open, handleClose, rename, clear }: BasicMenuProps) {
     return (
       <Menu
         id="basic-menu"
@@ -20,8 +22,8 @@ interface BasicMenuProps {
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem onClick={handleClose}>Rename</MenuItem>
-        <MenuItem onClick={handleClose}>Clear</MenuItem>
+        <MenuItem onClick={() => rename}>Rename</MenuItem>
+        <MenuItem onClick={clear}>Clear</MenuItem>
         <MenuItem onClick={handleClose}>Delete</MenuItem>
       </Menu>
     );

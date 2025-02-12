@@ -87,6 +87,7 @@ export function CardDisplay({
         style={
           state.type === 'preview'
             ? {
+              background: '#CCCED1',
                 width: state.dragging.width,
                 height: state.dragging.height,
                 transform: !isSafari() ? 'rotate(4deg)' : undefined,

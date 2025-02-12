@@ -39,6 +39,7 @@ import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import { Button } from '@mui/material';
 import BasicMenu from './basicMenu';
+import Card from '@mui/material/Card';
 
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -275,6 +276,23 @@ export function Column({ column }: { column: TColumn }) {
 
   }
 
+  function rename(name: string){
+    column.title = name;
+    setKey((k) => k + 1)
+  }
+
+  function clear(){
+    column.cards = [];
+    setKey((k) => k + 1)
+  }
+
+  function deleteColumn(){
+    
+    
+
+  }
+
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -295,7 +313,7 @@ export function Column({ column }: { column: TColumn }) {
         <div
           className={`flex max-h-full flex-col ${state.type === 'is-column-over' ? 'invisible' : ''}`}
         >
-          <div className="flex flex-row items-center justify-between p-3 pb-2" ref={headerRef}>
+          {/*<div className="flex flex-row items-center justify-between p-3 pb-2" ref={headerRef}>
             <div className="pl-2 font-bold leading-4">{column.title}</div>
             <button
               type="button"
@@ -304,17 +322,19 @@ export function Column({ column }: { column: TColumn }) {
             >
               <Ellipsis size={16} />
             </button>
-          </div>
+          </div>*/}
 
-          {/*<Card sx={{ minWidth: 345, maxWidth: 345 }} >
-            <BasicMenu anchorEl={anchorEl} open={open} handleClose={handleClose} />
-            <CardHeader
+          <Card sx={{ maxWidth: 345 }} >
+            <BasicMenu anchorEl={anchorEl} open={open} handleClose={handleClose} rename={function (name: string): void {
+              throw new Error('Function not implemented.');
+            } } clear={clear} />
+            <CardHeader className=" border-b flex flex-row items-center justify-between p-3 pb-2" ref={headerRef}
               action={<IconButton aria-label="settings" onClick={handleClick}>
                 <MoreVertIcon />
               </IconButton>}
               title={column.title} />
 
-            <CardContent> */}
+            <CardContent > 
               <div
                 className="flex flex-col overflow-y-auto [overflow-anchor:none] [scrollbar-color:theme(colors.slate.600)_theme(colors.slate.700)] [scrollbar-width:thin]"
                 ref={scrollableRef}
@@ -328,33 +348,37 @@ export function Column({ column }: { column: TColumn }) {
               </div>
               <div className="flex flex-row gap-2 p-3">
                 <InputBase
-                  sx={{ ml: 1, flex: 1, color: 'white' }}
+                  sx={{ ml: 1, flex: 1, color: 'black' }}
                   placeholder="Add a task"
                   inputProps={{ "aria-label": "Add a task" }}
                   onKeyUp={handleKeyUp}
                   inputRef={taskInputRef} />
               </div>
-              <div className="flex flex-row gap-2 p-3">
+              {/*<div className="flex flex-row gap-2 p-3">*/}
 
-            <button
+            {/*<button
               type="button"
               className="flex flex-grow flex-row gap-1 rounded p-2 hover:bg-slate-700 active:bg-slate-600"
               onClick={addTask}
             >
               <Plus size={16} />
               <div className="leading-4">Add a task</div>
-            </button>
+            </button>*/}
 
 
 
-            {/*</CardContent>
+            </CardContent>
 
-            <CardActions disableSpacing>
-              <Button sx={{ margin: 'auto' }} variant="text">Add Card</Button>
+
+            <CardActions className="border-t" disableSpacing sx={{ border: 'darkgray' }}>
+              
+              <Button sx={{ margin: 'auto' }} onClick={addTask} variant="text">Add Card</Button>
+              
             </CardActions>
+           
 
-          </Card>*/}
-          </div>
+          </Card>
+          {/*</div>*/}
 
         </div>
       </div>
